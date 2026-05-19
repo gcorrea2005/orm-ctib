@@ -1,0 +1,420 @@
+  0
+LAYERSTATEDICTIONARY
+  0
+LAYERSTATE
+  1
+hcb_plantas
+ 91
+2047
+301
+
+290
+1
+302
+HCB-VIGAS
+  8
+HCB-ANCLAJE
+ 90
+8
+ 62
+5
+370
+-3
+  6
+Continuous
+  2
+Color_5
+440
+0
+  8
+HCB-TEXT-H2
+ 90
+8
+ 62
+4
+370
+18
+  6
+Continuous
+  2
+Color_4
+440
+0
+  8
+HCB-TEXT-H1
+ 90
+8
+ 62
+6
+370
+18
+  6
+Continuous
+  2
+Color_6
+440
+0
+  8
+HCB-ROTULOS
+ 90
+8
+ 62
+2
+370
+-3
+  6
+Continuous
+  2
+Color_2
+440
+0
+  8
+HCB-ACH_PANT
+ 90
+8
+ 62
+253
+370
+-3
+  6
+Continuous
+  2
+Color_253
+440
+0
+  8
+HCB_PANTALLAS
+ 90
+8
+ 62
+6
+370
+-3
+  6
+Continuous
+  2
+Color_6
+440
+0
+  8
+HCB-EJES
+ 90
+8
+ 62
+1
+370
+-3
+  6
+Continuous
+  2
+Color_1
+440
+0
+  8
+E_MUROS-3
+ 90
+8
+ 62
+2
+370
+35
+  6
+Continuous
+  2
+Color_2
+440
+0
+  8
+FORMATO
+ 90
+8
+ 62
+7
+370
+-3
+  6
+Continuous
+  2
+Color_7
+440
+0
+  8
+VIEWPORT
+ 90
+10
+ 62
+7
+370
+-3
+  6
+Continuous
+  2
+Color_7
+440
+0
+  8
+STL-OBJT
+ 90
+8
+ 62
+7
+370
+-3
+  6
+Continuous
+  2
+Color_7
+440
+0
+  8
+COTAS
+ 90
+8
+ 62
+8
+370
+-3
+  6
+Continuous
+  2
+Color_8
+440
+0
+  8
+E_MUROS-1
+ 90
+8
+ 62
+2
+370
+25
+  6
+Continuous
+  2
+Color_2
+440
+0
+  8
+A_ALMA
+ 90
+8
+ 62
+8
+370
+5
+  6
+Continuous
+  2
+Color_8
+440
+0
+  8
+HCB-VIGAS
+ 90
+8
+ 62
+4
+370
+15
+  6
+Continuous
+  2
+Color_4
+440
+0
+  8
+HCB-PLATINA
+ 90
+8
+ 62
+4
+370
+15
+  6
+Continuous
+  2
+Color_4
+440
+0
+  8
+Defpoints
+ 90
+0
+ 62
+7
+370
+-3
+  6
+Continuous
+  2
+Color_7
+440
+0
+  8
+0-2
+ 90
+8
+ 62
+250
+370
+5
+  6
+Continuous
+  2
+Color_250
+440
+0
+  8
+S-COLS-HDLN-1
+ 90
+8
+ 62
+52
+370
+9
+  6
+Continuous
+  2
+Color_52
+440
+0
+  8
+E_COLUMNAS-4
+ 90
+8
+ 62
+1
+370
+25
+  6
+Continuous
+  2
+Color_1
+440
+0
+  8
+E_COLUMNAS-3
+ 90
+8
+ 62
+1
+370
+35
+  6
+Continuous
+  2
+Color_1
+440
+0
+  8
+E_VIGAS-3
+ 90
+8
+ 62
+5
+370
+25
+  6
+Continuous
+  2
+Color_5
+440
+0
+  8
+E_COLUMNAS-2
+ 90
+8
+ 62
+1
+370
+9
+  6
+Continuous
+  2
+Color_1
+440
+0
+  8
+E_COLUMNAS-1
+ 90
+8
+ 62
+254
+370
+25
+  6
+Continuous
+  2
+Color_254
+440
+0
+  8
+E_VIGAS-2
+ 90
+8
+ 62
+10
+370
+25
+  6
+Continuous
+  2
+Color_10
+440
+0
+  8
+E_VIGAS-1
+ 90
+8
+ 62
+5
+370
+25
+  6
+Continuous
+  2
+Color_5
+440
+0
+  8
+E_TEXTO
+ 90
+8
+ 62
+3
+370
+9
+  6
+Continuous
+  2
+Color_3
+440
+0
+  8
+E_VIGAS
+ 90
+8
+ 62
+7
+370
+9
+  6
+Continuous
+  2
+Color_7
+440
+0
+  8
+0
+ 90
+8
+ 62
+7
+370
+-3
+  6
+Continuous
+  2
+Color_7
+440
+0

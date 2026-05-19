@@ -1,0 +1,78 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  activo    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Nivel {
+  id             Int          @id @default(autoincrement())
+  nombre         String       @unique
+  descripcion    String?
+  activoInformes Boolean      @default(true)
+  elementos      MetalElement[]
+}
+
+model MetalElement {
+  id            Int                 @id @default(autoincrement())
+  parte         String
+  perfil        String
+  longitud      Float
+  cantidad      Int
+  peso          Float
+  pesoTotal     Float?              // Peso total = peso * cantidad
+  observaciones String?
+  nivelId       Int
+  nivel         Nivel               @relation(fields: [nivelId], references: [id], onDelete: Cascade)
+  actividades   ActividadElemento[]
+}
+
+model ActividadElemento {
+  id            Int       @id @default(autoincrement())
+  elementoId   Int
+  tipo         String    // 'bim', 'planos_taller', 'corte_perforacion', 'armado', 'soldadura', 'sand_blasting', 'pintura', 'almacenamiento', 'montaje', 'entrega'
+  orden        Int       // 1-10 para mantener el orden secuencial
+  estado       String    @default("pendiente") // 'pendiente', 'en_proceso', 'completado'
+  fechaInicio  DateTime?
+  fechaFin     DateTime?
+  observaciones String?
+  datos        String?   // JSON string con datos específicos de la etapa (INFO, Planos, etc.)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  elemento     MetalElement @relation(fields: [elementoId], references: [id], onDelete: Cascade)
+
+  @@index([elementoId])
+}
+
+model Stock {
+  id          Int       @id @default(autoincrement())
+  nombre      String    @unique
+  descripcion String?
+  productos   Producto[]
+}
+
+model Producto {
+  id          Int      @id @default(autoincrement())
+  perfil      String
+  cantidad    Int      @default(0)
+  largo       Float    @default(0)
+  ancho       Float    @default(0)
+  peso        Float    @default(0)
+  comentarios String?
+  stockId     Int
+  stock       Stock    @relation(fields: [stockId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
