@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Eye, Download, Search, Building2, Box } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { Eye, Download, Search, Building2, Box, Upload, Trash2, Edit3, Check, X, AlertTriangle } from 'lucide-react'
 import IFCViewer from '../IFCViewer'
 
 interface BimFile {
@@ -14,8 +14,14 @@ export default function BimPanel() {
   const [archivos, setArchivos] = useState<BimFile[]>([])
   const [busqueda, setBusqueda] = useState('')
   const [visorIFC, setVisorIFC] = useState<{ path: string; nombre: string } | null>(null)
+  const [subiendo, setSubiendo] = useState(false)
+  const [renombrando, setRenombrando] = useState<string | null>(null)
+  const [nuevoNombre, setNuevoNombre] = useState('')
+  const [confirmandoEliminar, setConfirmandoEliminar] = useState<string | null>(null)
+  const [mensaje, setMensaje] = useState<{ tipo: 'ok' | 'error'; texto: string } | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => {
+  const cargarArchivos = () => {
     fetch('/api/bim-files')
       .then(res => {
         if (!res.ok) throw new Error('Error cargando lista IFC')
@@ -26,7 +32,81 @@ export default function BimPanel() {
         console.error('Error cargando lista IFC:', err)
         setArchivos([])
       })
-  }, [])
+  }
+
+  useEffect(() => { cargarArchivos() }, [])
+
+  const mostrarMensaje = (tipo: 'ok' | 'error', texto: string) => {
+    setMensaje({ tipo, texto })
+    setTimeout(() => setMensaje(null), 3000)
+  }
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (!file.name.toLowerCase().endsWith('.ifc')) {
+      mostrarMensaje('error', 'Solo se permiten archivos .ifc')
+      return
+    }
+
+    setSubiendo(true)
+    const formData = new FormData()
+    formData.append('file', file)
+
+    try {
+      const res = await fetch('/api/bim/upload', { method: 'POST', body: formData })
+      const data = await res.json()
+      if (res.ok) {
+        mostrarMensaje('ok', `"${data.filename}" subido correctamente`)
+        cargarArchivos()
+      } else {
+        mostrarMensaje('error', data.error || 'Error al subir')
+      }
+    } catch {
+      mostrarMensaje('error', 'Error de conexión')
+    } finally {
+      setSubiendo(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
+
+  const handleEliminar = async (filename: string) => {
+    try {
+      const res = await fetch(`/api/bim/${encodeURIComponent(filename)}`, { method: 'DELETE' })
+      const data = await res.json()
+      if (res.ok) {
+        mostrarMensaje('ok', `"${filename}" eliminado`)
+        setConfirmandoEliminar(null)
+        cargarArchivos()
+      } else {
+        mostrarMensaje('error', data.error || 'Error al eliminar')
+      }
+    } catch {
+      mostrarMensaje('error', 'Error de conexión')
+    }
+  }
+
+  const handleRenombrar = async (oldName: string) => {
+    if (!nuevoNombre.trim()) return
+    try {
+      const res = await fetch('/api/bim/rename', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ oldName, newName: nuevoNombre.trim() })
+      })
+      const data = await res.json()
+      if (res.ok) {
+        mostrarMensaje('ok', `Renombrado a "${data.newName}"`)
+        setRenombrando(null)
+        setNuevoNombre('')
+        cargarArchivos()
+      } else {
+        mostrarMensaje('error', data.error || 'Error al renombrar')
+      }
+    } catch {
+      mostrarMensaje('error', 'Error de conexión')
+    }
+  }
 
   const filtrados = archivos.filter(a =>
     a.codigo.toLowerCase().includes(busqueda.toLowerCase())
@@ -46,19 +126,14 @@ export default function BimPanel() {
         window.URL.revokeObjectURL(url)
         document.body.removeChild(link)
       })
-      .catch(err => {
-        console.error('Error descargando IFC:', err)
-      })
   }
 
-  // Si el visor está abierto, mostrarlo fullscreen
   if (visorIFC) {
     return <IFCViewer filePath={visorIFC.path} fileName={visorIFC.nombre} onClose={() => setVisorIFC(null)} />
   }
 
   return (
     <div className="panel">
-      {/* Header */}
       <div className="panel-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <Box size={24} color="#667eea" />
@@ -67,27 +142,41 @@ export default function BimPanel() {
             <span style={{ color: '#8b949e', fontSize: '0.85rem' }}>Modelos 3D de la estructura</span>
           </div>
         </div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".ifc"
+          style={{ display: 'none' }}
+          onChange={handleUpload}
+        />
+        <button
+          className="btn-primary"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={subiendo}
+          style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+        >
+          <Upload size={16} /> {subiendo ? 'Subiendo...' : 'Subir IFC'}
+        </button>
       </div>
 
-      {/* Banner informativo */}
-      <div style={{
-        background: 'rgba(102, 126, 234, 0.08)',
-        border: '1px solid rgba(102, 126, 234, 0.2)',
-        borderLeft: '4px solid #667eea',
-        borderRadius: '8px',
-        padding: '12px 16px',
-        marginBottom: '1.5rem',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px'
-      }}>
-        <Building2 size={20} color="#667eea" />
-        <p style={{ margin: 0, fontSize: '0.85rem', color: '#8b949e' }}>
-          <strong style={{ color: '#e6edf3' }}>VISUALIZAR 3D</strong> para ver online o <strong style={{ color: '#e6edf3' }}>DESCARGAR</strong> para abrir en Revit, Tekla, ArchiCAD.
-        </p>
-      </div>
+      {mensaje && (
+        <div style={{
+          background: mensaje.tipo === 'ok' ? 'rgba(46, 160, 67, 0.15)' : 'rgba(218, 54, 51, 0.15)',
+          border: `1px solid ${mensaje.tipo === 'ok' ? '#2ea043' : '#da3633'}`,
+          borderRadius: '8px',
+          padding: '10px 16px',
+          marginBottom: '1rem',
+          color: mensaje.tipo === 'ok' ? '#3fb950' : '#f85149',
+          fontSize: '0.85rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          {mensaje.tipo === 'ok' ? <Check size={16} /> : <AlertTriangle size={16} />}
+          {mensaje.texto}
+        </div>
+      )}
 
-      {/* Stats */}
       <div className="stats-grid" style={{ marginBottom: '1.5rem' }}>
         <div className="stat-card">
           <span className="stat-value">{archivos.length}</span>
@@ -103,7 +192,6 @@ export default function BimPanel() {
         </div>
       </div>
 
-      {/* Buscador */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
@@ -132,7 +220,6 @@ export default function BimPanel() {
         <span style={{ color: '#8b949e', fontSize: '0.8rem' }}>{filtrados.length} archivos</span>
       </div>
 
-      {/* Tabla de archivos */}
       <div style={{ overflowX: 'auto' }}>
         <table className="informe-table" style={{ width: '100%' }}>
           <thead>
@@ -140,7 +227,7 @@ export default function BimPanel() {
               <th>Modelo</th>
               <th style={{ width: '80px' }}>Tipo</th>
               <th style={{ width: '80px' }}>Tamaño</th>
-              <th style={{ width: '220px', textAlign: 'right' }}>Acciones</th>
+              <th style={{ width: '300px', textAlign: 'right' }}>Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -148,15 +235,38 @@ export default function BimPanel() {
               <tr>
                 <td colSpan={4} style={{ textAlign: 'center', padding: '40px' }}>
                   <Building2 size={48} color="#30363d" />
-                  <p style={{ color: '#8b949e', marginTop: '0.5rem' }}>No hay archivos IFC</p>
+                  <p style={{ color: '#8b949e', marginTop: '0.5rem' }}>
+                    {busqueda ? `No se encontraron modelos con "${busqueda}"` : 'No hay archivos IFC'}
+                  </p>
                 </td>
               </tr>
             ) : (
               filtrados.map(archivo => (
-                <tr key={archivo.id} style={{ cursor: 'pointer' }} onClick={() => setVisorIFC({ path: archivo.path, nombre: archivo.nombre })}>
+                <tr key={archivo.id}>
                   <td style={{ fontFamily: 'monospace', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <Building2 size={16} color="#667eea" />
-                    {archivo.codigo}
+                    {renombrando === archivo.nombre ? (
+                      <input
+                        autoFocus
+                        value={nuevoNombre}
+                        onChange={(e) => setNuevoNombre(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') handleRenombrar(archivo.nombre)
+                          if (e.key === 'Escape') { setRenombrando(null); setNuevoNombre('') }
+                        }}
+                        style={{
+                          background: '#161b22',
+                          border: '1px solid #667eea',
+                          color: '#e6edf3',
+                          padding: '4px 8px',
+                          borderRadius: '4px',
+                          fontSize: '0.85rem',
+                          width: '200px'
+                        }}
+                      />
+                    ) : (
+                      archivo.codigo
+                    )}
                   </td>
                   <td>
                     <span style={{
@@ -172,37 +282,86 @@ export default function BimPanel() {
                   </td>
                   <td style={{ color: '#8b949e', fontSize: '0.85rem' }}>{archivo.tamano}</td>
                   <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
-                    <button
-                      className="btn-primary"
-                      style={{
-                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                        padding: '6px 12px',
-                        fontSize: '12px',
-                        marginRight: '6px',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '4px'
-                      }}
-                      onClick={(e) => { e.stopPropagation(); setVisorIFC({ path: archivo.path, nombre: archivo.nombre }) }}
-                      title="Visualizar modelo IFC en 3D"
-                    >
-                      <Eye size={14} /> VISUALIZAR 3D
-                    </button>
-                    <button
-                      className="btn-primary"
-                      style={{
-                        background: '#1f6feb',
-                        padding: '6px 12px',
-                        fontSize: '12px',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '4px'
-                      }}
-                      onClick={(e) => { e.stopPropagation(); descargarArchivo(archivo.path, archivo.nombre) }}
-                      title="Descargar archivo IFC"
-                    >
-                      <Download size={14} /> DESCARGAR
-                    </button>
+                    {renombrando === archivo.nombre ? (
+                      <>
+                        <button
+                          className="btn-primary"
+                          style={{ background: '#2ea043', padding: '6px 10px', fontSize: '12px', marginRight: '4px' }}
+                          onClick={() => handleRenombrar(archivo.nombre)}
+                          title="Guardar"
+                        >
+                          <Check size={14} />
+                        </button>
+                        <button
+                          className="btn-primary"
+                          style={{ background: '#30363d', padding: '6px 10px', fontSize: '12px' }}
+                          onClick={() => { setRenombrando(null); setNuevoNombre('') }}
+                          title="Cancelar"
+                        >
+                          <X size={14} />
+                        </button>
+                      </>
+                    ) : confirmandoEliminar === archivo.nombre ? (
+                      <>
+                        <span style={{ color: '#f85149', fontSize: '0.8rem', marginRight: '8px' }}>¿Eliminar?</span>
+                        <button
+                          className="btn-primary"
+                          style={{ background: '#da3633', padding: '6px 10px', fontSize: '12px', marginRight: '4px' }}
+                          onClick={() => handleEliminar(archivo.nombre)}
+                          title="Confirmar eliminar"
+                        >
+                          <Check size={14} />
+                        </button>
+                        <button
+                          className="btn-primary"
+                          style={{ background: '#30363d', padding: '6px 10px', fontSize: '12px' }}
+                          onClick={() => setConfirmandoEliminar(null)}
+                          title="Cancelar"
+                        >
+                          <X size={14} />
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          className="btn-primary"
+                          style={{
+                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            padding: '6px 10px',
+                            fontSize: '12px',
+                            marginRight: '4px'
+                          }}
+                          onClick={() => setVisorIFC({ path: archivo.path, nombre: archivo.nombre })}
+                          title="Visualizar 3D"
+                        >
+                          <Eye size={14} />
+                        </button>
+                        <button
+                          className="btn-primary"
+                          style={{ background: '#1f6feb', padding: '6px 10px', fontSize: '12px', marginRight: '4px' }}
+                          onClick={() => descargarArchivo(archivo.path, archivo.nombre)}
+                          title="Descargar"
+                        >
+                          <Download size={14} />
+                        </button>
+                        <button
+                          className="btn-primary"
+                          style={{ background: '#30363d', padding: '6px 10px', fontSize: '12px', marginRight: '4px' }}
+                          onClick={() => { setRenombrando(archivo.nombre); setNuevoNombre(archivo.codigo) }}
+                          title="Renombrar"
+                        >
+                          <Edit3 size={14} />
+                        </button>
+                        <button
+                          className="btn-primary"
+                          style={{ background: '#da3633', padding: '6px 10px', fontSize: '12px' }}
+                          onClick={() => setConfirmandoEliminar(archivo.nombre)}
+                          title="Eliminar"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </>
+                    )}
                   </td>
                 </tr>
               ))
@@ -211,7 +370,6 @@ export default function BimPanel() {
         </table>
       </div>
 
-      {/* Contador */}
       <div style={{ marginTop: '1rem', textAlign: 'center', color: '#8b949e', fontSize: '0.85rem' }}>
         Mostrando {filtrados.length} de {archivos.length} modelos
       </div>

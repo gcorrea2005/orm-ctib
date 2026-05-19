@@ -1,5 +1,7 @@
 import express from 'express'
 import cors from 'cors'
+import multer from 'multer'
+import fs from 'fs'
 import { PrismaClient } from '@prisma/client'
 import { fileURLToPath } from 'url'
 import path from 'path'
@@ -17,6 +19,28 @@ app.use(express.json())
 
 // Serve static files from Vite build (dist folder)
 app.use(express.static(path.join(__dirname, '..', 'dist')))
+
+// BIM files directory
+const bimDir = path.join(__dirname, '..', 'public', 'taller', 'bim')
+
+// Multer config for IFC uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    if (!fs.existsSync(bimDir)) fs.mkdirSync(bimDir, { recursive: true })
+    cb(null, bimDir)
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname)
+  }
+})
+const upload = multer({
+  storage,
+  fileFilter: (req, file, cb) => {
+    if (file.originalname.toLowerCase().endsWith('.ifc')) cb(null, true)
+    else cb(new Error('Solo archivos .ifc permitidos'))
+  },
+  limits: { fileSize: 200 * 1024 * 1024 } // 200MB max
+})
 
 // API routes will be handled below...
 
@@ -450,6 +474,72 @@ app.delete('/api/productos/:id', async (req, res) => {
     res.json({ success: true })
   } catch (error) {
     res.status(500).json({ error: 'Error deleting producto' })
+  }
+})
+
+// BIM Files API
+app.get('/api/bim-files', (req, res) => {
+  try {
+    if (!fs.existsSync(bimDir)) return res.json([])
+    const files = fs.readdirSync(bimDir)
+      .filter(f => f.toLowerCase().endsWith('.ifc'))
+      .map((f, i) => {
+        const stat = fs.statSync(path.join(bimDir, f))
+        const sizeKB = stat.size / 1024
+        let tamano
+        if (sizeKB >= 1024) tamano = (sizeKB / 1024).toFixed(1) + ' MB'
+        else if (sizeKB >= 1) tamano = Math.round(sizeKB) + ' KB'
+        else tamano = Math.round(stat.size) + ' B'
+        return { id: i, nombre: f, codigo: f.replace(/\.ifc$/i, ''), path: '/taller/bim/' + f, tamano, bytes: stat.size, mtime: stat.mtimeMs }
+      })
+    function sortKey(c) {
+      if (c.startsWith('CTIB-HCB')) return '00_' + c
+      if (c.startsWith('N0')) return '01_' + c.padStart(10, '0')
+      if (c.startsWith('COL') || c.startsWith('col') || (c.startsWith('c_') && !/[AB]_\d/.test(c))) return '02_' + c
+      if (c === '01' || c === 'b43') return '03_' + c
+      return '09_' + c
+    }
+    files.sort((a, b) => sortKey(a.codigo).localeCompare(sortKey(b.codigo)))
+    files.forEach((f, i) => f.id = i)
+    res.json(files)
+  } catch (error) {
+    res.status(500).json({ error: 'Error listing BIM files' })
+  }
+})
+
+app.post('/api/bim/upload', upload.single('file'), (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' })
+    res.json({ success: true, filename: req.file.originalname, size: req.file.size })
+  } catch (error) {
+    res.status(500).json({ error: 'Error uploading file' })
+  }
+})
+
+app.delete('/api/bim/:filename', (req, res) => {
+  try {
+    const filePath = path.join(bimDir, req.params.filename)
+    if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'File not found' })
+    fs.unlinkSync(filePath)
+    res.json({ success: true })
+  } catch (error) {
+    res.status(500).json({ error: 'Error deleting file' })
+  }
+})
+
+app.put('/api/bim/rename', (req, res) => {
+  try {
+    const { oldName, newName } = req.body
+    if (!oldName || !newName) return res.status(400).json({ error: 'Missing oldName or newName' })
+    const oldPath = path.join(bimDir, oldName)
+    const newNameFixed = newName.toLowerCase().endsWith('.ifc') ? newName : newName + '.ifc'
+    const newPath = path.join(bimDir, newNameFixed)
+    if (!fs.existsSync(oldPath)) return res.status(404).json({ error: 'File not found' })
+    if (fs.existsSync(newPath)) return res.status(409).json({ error: 'File already exists' })
+    fs.renameSync(oldPath, newPath)
+    res.json({ success: true, oldName, newName: newNameFixed })
+  } catch (error) {
+    res.status(500).json({ error: 'Error renaming file' })
   }
 })
 
