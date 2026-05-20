@@ -43,6 +43,7 @@ export default function TallerPanel() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedActividad, setSelectedActividad] = useState<any>(null)
   const [visorIFC, setVisorIFC] = useState<{ path: string; nombre: string } | null>(null)
+  const [visorPDF, setVisorPDF] = useState<{ path: string; nombre: string } | null>(null)
   const [showPlanosTaller, setShowPlanosTaller] = useState(false)
   const [showCortePerforacion, setShowCortePerforacion] = useState(false)
   const [showArmado, setShowArmado] = useState(false)
@@ -655,6 +656,8 @@ return (
                                 }
                                 if ('isIFC' in btn && btn.isIFC) {
                                   setVisorIFC({ path: btn.url, nombre: `${el.parte} - ${el.perfil}` })
+                                } else if (btn.label === 'PDF') {
+                                  setVisorPDF({ path: btn.url, nombre: `${el.parte} - ${el.perfil}` })
                                 } else {
                                   window.open(btn.url, '_blank')
                                 }
@@ -802,6 +805,27 @@ return (
               fileName={visorIFC.nombre}
               onClose={() => setVisorIFC(null)}
             />
+          )}
+          {visorPDF && (
+            <div style={{ position: 'fixed', inset: 0, background: '#0a0e14', zIndex: 999999, display: 'flex', flexDirection: 'column' }}>
+              <div style={{ background: 'rgba(10,14,20,0.95)', padding: '12px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #30363d', zIndex: 1000 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#e6edf3' }}>
+                  <span style={{ fontSize: 20 }}>📄</span>
+                  <span style={{ fontWeight: 600, fontSize: 14 }}>{visorPDF.nombre}</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <a href={visorPDF.path} download style={{ textDecoration: 'none', fontSize: 12, padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 4, background: '#667eea', color: '#fff', borderRadius: 6, fontWeight: 600 }}>
+                    ⬇ Descargar
+                  </a>
+                  <button onClick={() => setVisorPDF(null)} style={{ padding: '6px 12px', background: '#da3633', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    ✕ Cerrar
+                  </button>
+                </div>
+              </div>
+              <div style={{ flex: 1, background: '#21262d' }}>
+                <embed src={visorPDF.path} type="application/pdf" style={{ width: '100%', height: '100%', border: 'none' }} />
+              </div>
+            </div>
           )}
         </div>
       )
