@@ -57,33 +57,31 @@ export default function InformeTallerPanel() {
     sum + g.elementos.reduce((s, el) => s + el.cantidad, 0), 0
   )
 
-  // Función para agrupar platinas por espesor (PL100, PL127, etc.)
+  // Espesores conocidos (del formato con asterisco en la DB)
+  const KNOWN_ESPESORES = ['127','100','76','64','50','38','32','25','20','19','16','13','12','10','7.5','6.6','6.2','6','5','4'];
+
+  // Función para agrupar platinas por espesor (PL100, PL127, PL6, etc.)
   const getPerfilKey = (perfil: string): string => {
-    // Si es platina (empieza con PL), agrupar por espesor
-    if (perfil.startsWith('PL')) {
-      // Formato 1: PL127*1400 (con asterisco separador)
-      const withStar = perfil.match(/^PL(\d+)\*/);
-      if (withStar) {
-        return 'PL' + withStar[1];
+    if (!perfil.startsWith('PL')) return perfil;
+
+    // Formato con asterisco: PL127*1400 → PL127, PL6.2*75 → PL6.2
+    const withStar = perfil.match(/^PL([\d.]+)\*/);
+    if (withStar) return 'PL' + withStar[1];
+
+    // Formato sin asterisco: PL1271400, PL1001000, PL642500, PL16400, PL6250
+    const digits = perfil.slice(2);
+    if (/^\d+$/.test(digits)) {
+      // Probar espesores conocidos (más largo primero) — resuelve ambigüedad
+      for (const esp of KNOWN_ESPESORES) {
+        if (digits.startsWith(esp) && digits.length > esp.length) return 'PL' + esp;
       }
-      // Formato 2: PL1271400 (sin asterisco)
-      // Extraer los primeros 2-3 dígitos como espesor
-      // El espesor de platina típico: 6-127mm, seguido de ancho (3-4 dígitos)
-      const match3 = perfil.match(/^PL(\d{3})(\d{3,4})$/);
-      if (match3) {
-        return 'PL' + match3[1];
-      }
-      const match2 = perfil.match(/^PL(\d{2})(\d{3,4})$/);
-      if (match2) {
-        return 'PL' + match2[1];
-      }
-      // Fallback: cualquier dígito
-      const anyMatch = perfil.match(/^PL(\d+)/);
-      if (anyMatch) {
-        return 'PL' + anyMatch[1];
-      }
+      // Fallback: si no está en la lista, asumir 2 dígitos de espesor
+      if (digits.length >= 4) return 'PL' + digits.slice(0, 2);
     }
-    return perfil; // para otros perfiles, usar el perfil completo
+
+    // Fallback
+    const anyMatch = perfil.match(/^PL([\d.]+)/);
+    return anyMatch ? 'PL' + anyMatch[1] : perfil;
   };
 
   // Procesar datos por perfil para el informe resumen

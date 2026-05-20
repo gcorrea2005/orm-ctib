@@ -477,6 +477,274 @@ app.delete('/api/productos/:id', async (req, res) => {
   }
 })
 
+// Conexiones helpers
+const CONEXION_CATEGORIAS = [
+  { cat: 'IPE-IPE', p: 'IPE', s: 'IPE' },
+  { cat: 'IPE-HEA', p: 'IPE', s: 'HEA' },
+  { cat: 'IPE-TCUAD', p: 'IPE', s: 'TUBO CUADRADO' },
+  { cat: 'HEA-IPE', p: 'HEA', s: 'IPE' },
+  { cat: 'HEA-HEA', p: 'HEA', s: 'HEA' },
+  { cat: 'HEA-TCUAD', p: 'HEA', s: 'TUBO CUADRADO' },
+  { cat: 'TCUAD-IPE', p: 'TUBO CUADRADO', s: 'IPE' },
+  { cat: 'TCUAD-HEA', p: 'TUBO CUADRADO', s: 'HEA' },
+  { cat: 'TCUAD-TCUAD', p: 'TUBO CUADRADO', s: 'TUBO CUADRADO' },
+  { cat: 'TCUAD-PLBASE', p: 'TUBO CUADRADO', s: 'PLACA BASE' },
+  { cat: 'TRDON-IPE', p: 'TUBO REDONDO', s: 'IPE' },
+  { cat: 'TRDON-HEA', p: 'TUBO REDONDO', s: 'HEA' },
+  { cat: 'TRDON-TCUAD', p: 'TUBO REDONDO', s: 'TUBO CUADRADO' },
+  { cat: 'TRDON-PLBASE', p: 'TUBO REDONDO', s: 'PLACA BASE' },
+  { cat: 'IPE-TRDON', p: 'IPE', s: 'TUBO REDONDO' },
+  { cat: 'IPE-PLBASE', p: 'IPE', s: 'PLACA BASE' },
+  { cat: 'HEA-TRDON', p: 'HEA', s: 'TUBO REDONDO' },
+  { cat: 'HEA-PLBASE', p: 'HEA', s: 'PLACA BASE' },
+  { cat: 'TCUAD-TRDON', p: 'TUBO CUADRADO', s: 'TUBO REDONDO' },
+  { cat: 'TRDON-TRDON', p: 'TUBO REDONDO', s: 'TUBO REDONDO' },
+]
+
+// Dimensiones estandar de perfiles (mm): h=altura, b=ancho, tf=espesor ala
+const PERFIL_DIM = {
+  'IPE 200': { h: 200, b: 100, tf: 8.5 },
+  'IPE 240': { h: 240, b: 120, tf: 9.8 },
+  'IPE 270': { h: 270, b: 135, tf: 10.2 },
+  'IPE 300': { h: 300, b: 150, tf: 10.7 },
+  'IPE 330': { h: 330, b: 160, tf: 11.5 },
+  'IPE 360': { h: 360, b: 170, tf: 12.7 },
+  'IPE 400': { h: 400, b: 180, tf: 13.5 },
+  'IPE 450': { h: 450, b: 190, tf: 14.6 },
+  'IPE 500': { h: 500, b: 200, tf: 16 },
+  'IPE 550': { h: 550, b: 210, tf: 17.2 },
+  'IPE 600': { h: 600, b: 220, tf: 19 },
+  'HEA 200': { h: 200, b: 200, tf: 11 },
+  'HEA 220': { h: 220, b: 220, tf: 11.5 },
+  'HEA 240': { h: 240, b: 240, tf: 12 },
+  'HEA 260': { h: 260, b: 260, tf: 12.5 },
+  'HEA 280': { h: 280, b: 280, tf: 13 },
+  'HEA 300': { h: 300, b: 290, tf: 14 },
+  'HEA 320': { h: 320, b: 300, tf: 15.5 },
+  'HEA 340': { h: 340, b: 300, tf: 16.5 },
+  'HEA 360': { h: 360, b: 300, tf: 17.5 },
+  'HEA 400': { h: 400, b: 300, tf: 19 },
+  'HEA 450': { h: 450, b: 300, tf: 21 },
+  'HEA 500': { h: 500, b: 300, tf: 23 },
+  'HEA 550': { h: 550, b: 300, tf: 24.5 },
+  'HEA 600': { h: 600, b: 300, tf: 25 },
+}
+
+const PERFILES_FAMILIA = {
+  'IPE': ['IPE 200','IPE 240','IPE 270','IPE 300','IPE 330','IPE 360','IPE 400','IPE 450','IPE 500','IPE 550','IPE 600'],
+  'HEA': ['HEA 200','HEA 220','HEA 240','HEA 260','HEA 280','HEA 300','HEA 320','HEA 340','HEA 360','HEA 400','HEA 450','HEA 500','HEA 550','HEA 600'],
+  'TUBO CUADRADO': ['TUBO CUADRADO 100x100','TUBO CUADRADO 120x120','TUBO CUADRADO 150x150','TUBO CUADRADO 200x200','TUBO CUADRADO 250x250','TUBO CUADRADO 300x300','TUBO CUADRADO 350x350','TUBO CUADRADO 400x400'],
+  'TUBO REDONDO': ['TUBO REDONDO 114.3x6','TUBO REDONDO 168.3x7','TUBO REDONDO 219.1x8','TUBO REDONDO 273x8','TUBO REDONDO 305x10','TUBO REDONDO 323.9x10','TUBO REDONDO 355.6x10','TUBO REDONDO 406.4x12'],
+  'PLACA BASE': ['PLACA BASE'],
+}
+
+function getDimLibres(perfil) {
+  const dim = PERFIL_DIM[perfil]
+  if (!dim) return { ancho: null, largo: null }
+  return {
+    ancho: Math.round((dim.b - dim.tf) / 2 * 10) / 10,
+    largo: Math.round((dim.h - 2 * dim.tf) * 10) / 10
+  }
+}
+
+function calcPesoPlatina(ancho, largo, espesor) {
+  if (!ancho || !largo || !espesor) return null
+  return Math.round(ancho * largo * espesor * 0.00000785 * 100) / 100
+}
+
+function calcCordon(longitud, filete) {
+  if (!longitud || !filete) return { volumen: null, peso: null }
+  const volumen = Math.round(longitud * (filete * filete) / 2 * 100) / 100
+  const peso = Math.round(volumen * 0.00000785 * 10000) / 10000
+  return { volumen, peso }
+}
+
+function getFamilia(perfil) {
+  if (perfil.startsWith('IPE')) return 'IPE'
+  if (perfil.startsWith('HEA')) return 'HEA'
+  if (perfil.startsWith('TUBO CUADRADO')) return 'TUBO CUADRADO'
+  if (perfil.startsWith('TUBO REDONDO')) return 'TUBO REDONDO'
+  if (perfil === 'PLACA BASE') return 'PLACA BASE'
+  return ''
+}
+
+function calcCategoria(principal, secundaria) {
+  const fP = getFamilia(principal)
+  const fS = getFamilia(secundaria)
+  if (!fP || !fS) return null
+  const combo = CONEXION_CATEGORIAS.find(c => c.p === fP && c.s === fS)
+  return combo ? combo.cat : null
+}
+
+// Conexiones
+app.get('/api/conexiones', async (req, res) => {
+  try {
+    const conexiones = await prisma.conexion.findMany()
+    // Ordenar de mas pesado a mas liviano por familia y tamaño
+    const familiaOrder = { 'HEA': 0, 'IPE': 1, 'TUBO CUADRADO': 2, 'TUBO REDONDO': 3, 'PLACA BASE': 4 }
+    function getNum(p) { const m = p.match(/[\d.]+/); return m ? parseFloat(m[0]) : 0 }
+    function getFam(p) { return p.startsWith('HEA') ? 'HEA' : p.startsWith('IPE') ? 'IPE' : p.startsWith('TUBO CUADRADO') ? 'TUBO CUADRADO' : p.startsWith('TUBO REDONDO') ? 'TUBO REDONDO' : 'PLACA BASE' }
+    conexiones.sort((a, b) => {
+      const fa = familiaOrder[getFam(a.vigaPrincipal)] ?? 5
+      const fb = familiaOrder[getFam(b.vigaPrincipal)] ?? 5
+      if (fa !== fb) return fa - fb
+      const na = getNum(a.vigaPrincipal), nb = getNum(b.vigaPrincipal)
+      if (na !== nb) return nb - na
+      const fsa = familiaOrder[getFam(a.vigaSecundaria)] ?? 5
+      const fsb = familiaOrder[getFam(b.vigaSecundaria)] ?? 5
+      if (fsa !== fsb) return fsa - fsb
+      return getNum(b.vigaSecundaria) - getNum(a.vigaSecundaria)
+    })
+    res.json(conexiones)
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching conexiones' })
+  }
+})
+
+app.post('/api/conexiones', async (req, res) => {
+  try {
+    const { vigaPrincipal, vigaSecundaria, tipoConexion, platinaAnclaje, anchoPlatina, largoPlatina, espesorPlatina, perforaciones, numTornillos, diametroTornillo, largoTornillo, longitudCordon, tamanoFilete, observaciones } = req.body
+    const categoria = calcCategoria(vigaPrincipal, vigaSecundaria)
+    const cordon = calcCordon(Number(longitudCordon), Number(tamanoFilete))
+    const conexion = await prisma.conexion.create({
+      data: {
+        vigaPrincipal,
+        vigaSecundaria,
+        categoria,
+        tipoConexion,
+        platinaAnclaje: platinaAnclaje ?? false,
+        anchoPlatina: anchoPlatina ? Number(anchoPlatina) : null,
+        largoPlatina: largoPlatina ? Number(largoPlatina) : null,
+        espesorPlatina: espesorPlatina ? Number(espesorPlatina) : null,
+        pesoPlatina: calcPesoPlatina(Number(anchoPlatina), Number(largoPlatina), Number(espesorPlatina)),
+        perforaciones: perforaciones || null,
+        numTornillos: numTornillos ? Number(numTornillos) : null,
+        diametroTornillo: diametroTornillo ? Number(diametroTornillo) : null,
+        largoTornillo: largoTornillo ? Number(largoTornillo) : null,
+        longitudCordon: longitudCordon ? Number(longitudCordon) : null,
+        tamanoFilete: tamanoFilete ? Number(tamanoFilete) : null,
+        volumenCordon: cordon.volumen,
+        pesoCordon: cordon.peso,
+        observaciones: observaciones || null
+      }
+    })
+    res.json(conexion)
+  } catch (error) {
+    res.status(500).json({ error: 'Error creating conexion' })
+  }
+})
+
+app.put('/api/conexiones/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    const { vigaPrincipal, vigaSecundaria, tipoConexion, platinaAnclaje, anchoPlatina, largoPlatina, espesorPlatina, perforaciones, numTornillos, diametroTornillo, largoTornillo, longitudCordon, tamanoFilete, observaciones } = req.body
+    // Recalcular categoria si cambian las vigas
+    let categoria
+    if (vigaPrincipal !== undefined || vigaSecundaria !== undefined) {
+      const existing = await prisma.conexion.findUnique({ where: { id: Number(id) } })
+      const p = vigaPrincipal ?? existing.vigaPrincipal
+      const s = vigaSecundaria ?? existing.vigaSecundaria
+      categoria = calcCategoria(p, s)
+    }
+    // Recalcular peso platina si cambian dimensiones
+    let pesoPlatina
+    if (anchoPlatina !== undefined || largoPlatina !== undefined || espesorPlatina !== undefined) {
+      const existing = await prisma.conexion.findUnique({ where: { id: Number(id) } })
+      const a = anchoPlatina !== undefined ? Number(anchoPlatina) : existing.anchoPlatina
+      const l = largoPlatina !== undefined ? Number(largoPlatina) : existing.largoPlatina
+      const e = espesorPlatina !== undefined ? Number(espesorPlatina) : existing.espesorPlatina
+      pesoPlatina = calcPesoPlatina(a, l, e)
+    }
+    // Recalcular cordón si cambian longitud o filete
+    let volumenCordon, pesoCordon
+    if (longitudCordon !== undefined || tamanoFilete !== undefined) {
+      const existing = await prisma.conexion.findUnique({ where: { id: Number(id) } })
+      const lo = longitudCordon !== undefined ? Number(longitudCordon) : existing.longitudCordon
+      const fi = tamanoFilete !== undefined ? Number(tamanoFilete) : existing.tamanoFilete
+      const c = calcCordon(lo, fi)
+      volumenCordon = c.volumen
+      pesoCordon = c.peso
+    }
+    const conexion = await prisma.conexion.update({
+      where: { id: Number(id) },
+      data: {
+        ...(vigaPrincipal !== undefined && { vigaPrincipal }),
+        ...(vigaSecundaria !== undefined && { vigaSecundaria }),
+        ...(categoria !== undefined && { categoria }),
+        ...(tipoConexion !== undefined && { tipoConexion }),
+        ...(platinaAnclaje !== undefined && { platinaAnclaje }),
+        ...(anchoPlatina !== undefined && { anchoPlatina: anchoPlatina ? Number(anchoPlatina) : null }),
+        ...(largoPlatina !== undefined && { largoPlatina: largoPlatina ? Number(largoPlatina) : null }),
+        ...(espesorPlatina !== undefined && { espesorPlatina: espesorPlatina ? Number(espesorPlatina) : null }),
+        ...(pesoPlatina !== undefined && { pesoPlatina }),
+        ...(perforaciones !== undefined && { perforaciones: perforaciones || null }),
+        ...(numTornillos !== undefined && { numTornillos: numTornillos ? Number(numTornillos) : null }),
+        ...(diametroTornillo !== undefined && { diametroTornillo: diametroTornillo ? Number(diametroTornillo) : null }),
+        ...(largoTornillo !== undefined && { largoTornillo: largoTornillo ? Number(largoTornillo) : null }),
+        ...(longitudCordon !== undefined && { longitudCordon: longitudCordon ? Number(longitudCordon) : null }),
+        ...(tamanoFilete !== undefined && { tamanoFilete: tamanoFilete ? Number(tamanoFilete) : null }),
+        ...(volumenCordon !== undefined && { volumenCordon }),
+        ...(pesoCordon !== undefined && { pesoCordon }),
+        ...(observaciones !== undefined && { observaciones: observaciones || null })
+      }
+    })
+    res.json(conexion)
+  } catch (error) {
+    res.status(500).json({ error: 'Error updating conexion' })
+  }
+})
+
+app.delete('/api/conexiones/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    await prisma.conexion.delete({ where: { id: Number(id) } })
+    res.json({ success: true })
+  } catch (error) {
+    res.status(500).json({ error: 'Error deleting conexion' })
+  }
+})
+
+app.post('/api/conexiones/generate-all', async (req, res) => {
+  try {
+    const existing = await prisma.conexion.findMany({ select: { vigaPrincipal: true, vigaSecundaria: true } })
+    const existingSet = new Set(existing.map(e => `${e.vigaPrincipal}||${e.vigaSecundaria}`))
+
+    const records = []
+    for (const combo of CONEXION_CATEGORIAS) {
+      const principals = PERFILES_FAMILIA[combo.p] || []
+      const secondaries = PERFILES_FAMILIA[combo.s] || []
+      for (const pr of principals) {
+        for (const sec of secondaries) {
+          const key = `${pr}||${sec}`
+          if (existingSet.has(key)) continue
+          const dim = getDimLibres(pr)
+          records.push({
+            vigaPrincipal: pr,
+            vigaSecundaria: sec,
+            categoria: combo.cat,
+            tipoConexion: 'soldada',
+            platinaAnclaje: combo.s === 'PLACA BASE',
+            anchoPlatina: dim.ancho,
+            largoPlatina: dim.largo,
+          })
+        }
+      }
+    }
+
+    if (records.length === 0) {
+      return res.json({ count: 0, message: 'Todas las combinaciones ya existen' })
+    }
+
+    const result = await prisma.$transaction(
+      records.map(r => prisma.conexion.create({ data: r }))
+    )
+    res.json({ count: result.length, message: `${result.length} conexiones generadas` })
+  } catch (error) {
+    console.error('Error generating conexiones:', error)
+    res.status(500).json({ error: 'Error generating conexiones' })
+  }
+})
+
 // BIM Files API
 app.get('/api/bim-files', (req, res) => {
   try {

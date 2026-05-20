@@ -8,6 +8,7 @@ import InformesPanel from './panels/InformesPanel'
 import IngenieriaPanel from './panels/IngenieriaPanel'
 import TallerPanel from './panels/TallerPanel'
 import BimPanel from './panels/BimPanel'
+import ConexionesPanel from './panels/ConexionesPanel'
 import AcercaPanel from './panels/AcercaPanel'
 
 interface Tab {
@@ -21,6 +22,7 @@ const tabs: Tab[] = [
   { id: 'taller', icon: '🔧', label: 'Taller' },
   { id: 'ingenieria', icon: '⚙️', label: 'Ingeniería' },
   { id: 'bim', icon: '🏗️', label: 'BIM' },
+  { id: 'conexiones', icon: '🔗', label: 'Conexiones' },
   { id: 'informes', icon: '📊', label: 'Informes' },
   { id: 'usuarios', icon: '👥', label: 'Usuarios' },
   { id: 'acerca', icon: '👨‍💼', label: 'Acerca' },
@@ -44,6 +46,7 @@ export default function Dashboard() {
       case 'ingenieria': return <IngenieriaPanel />
       case 'taller': return <TallerPanel />
       case 'bim': return <BimPanel />
+      case 'conexiones': return <ConexionesPanel />
       case 'acerca': return <AcercaPanel />
       default: return <UsersPanel />
     }

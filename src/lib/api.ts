@@ -137,6 +137,42 @@ export const api = {
     return res.json()
   },
 
+  // Conexiones
+  async getConexiones() {
+    const res = await fetch(`${API_URL}/conexiones`)
+    return res.json()
+  },
+
+  async generateAllConexiones() {
+    const res = await fetch(`${API_URL}/conexiones/generate-all`, { method: 'POST' })
+    return res.json()
+  },
+
+  async createConexion(data: Record<string, unknown>) {
+    const res = await fetch(`${API_URL}/conexiones`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+    return res.json()
+  },
+
+  async updateConexion(id: number, data: Record<string, unknown>) {
+    const res = await fetch(`${API_URL}/conexiones/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+    return res.json()
+  },
+
+  async deleteConexion(id: number) {
+    const res = await fetch(`${API_URL}/conexiones/${id}`, {
+      method: 'DELETE'
+    })
+    return res.json()
+  },
+
   // Stock
   async getStocks() {
     const res = await fetch(`${API_URL}/stocks`)

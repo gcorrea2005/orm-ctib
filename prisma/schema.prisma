@@ -63,6 +63,30 @@ model Stock {
   productos   Producto[]
 }
 
+model Conexion {
+  id               Int      @id @default(autoincrement())
+  vigaPrincipal    String
+  vigaSecundaria   String
+  categoria        String?  // "IPE-IPE", "HEA-TCUAD", "TRDON-PLBASE", etc.
+  tipoConexion     String   // "soldada" | "atornillada"
+  platinaAnclaje   Boolean  @default(false)
+  anchoPlatina     Float?
+  largoPlatina     Float?
+  espesorPlatina   Float?
+  pesoPlatina      Float?
+  perforaciones    String?  // "alargadas" | "redondas"
+  numTornillos     Int?
+  diametroTornillo Float?
+  largoTornillo    Float?
+  longitudCordon   Float?
+  tamanoFilete     Float?
+  volumenCordon    Float?
+  pesoCordon       Float?
+  observaciones    String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
 model Producto {
   id          Int      @id @default(autoincrement())
   perfil      String
