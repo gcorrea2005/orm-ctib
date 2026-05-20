@@ -18,6 +18,7 @@ interface Elemento {
   longitud: number
   cantidad: number
   peso: number
+  pesoTotal: number
   observaciones?: string | null
   actividades?: any[]
 }
@@ -615,6 +616,56 @@ return (
                       ) : (
                         <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8em' }}>N/A</span>
                       )}
+                    </div>
+
+                    {/* Botonera de archivos DWG / IFC / PDF */}
+                    <div style={{ display: 'flex', gap: '4px', marginTop: '6px' }}>
+                      {[
+                        { label: 'DWG', icon: '📐', color: '#2563eb', bg: 'rgba(37,99,235,0.25)' },
+                        { label: 'IFC', icon: '🏗️', color: '#059669', bg: 'rgba(5,150,105,0.25)' },
+                        { label: 'PDF', icon: '📄', color: '#dc2626', bg: 'rgba(220,38,38,0.25)' },
+                      ].map(btn => (
+                        <button
+                          key={btn.label}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            const grupo = grupoActual?.nombre || ''
+                            const parte = el.parte.replace(/\s+/g, '_')
+                            const ext = btn.label.toLowerCase()
+                            // Buscar archivo en public/cant/ o public/ctib/
+                            window.open(`/api/files/${grupo}/${parte}.${ext}`, '_blank')
+                          }}
+                          style={{
+                            flex: 1,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '4px',
+                            padding: '5px 0',
+                            borderRadius: '6px',
+                            border: `1px solid ${btn.color}33`,
+                            background: btn.bg,
+                            color: btn.color,
+                            fontSize: '10px',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                            letterSpacing: '0.5px',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = `${btn.color}40`
+                            e.currentTarget.style.transform = 'scale(1.03)'
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = btn.bg
+                            e.currentTarget.style.transform = 'scale(1)'
+                          }}
+                          title={`Ver ${btn.label} - ${el.parte}`}
+                        >
+                          <span style={{ fontSize: '12px' }}>{btn.icon}</span>
+                          {btn.label}
+                        </button>
+                      ))}
                     </div>
                   </div>
                 ))
