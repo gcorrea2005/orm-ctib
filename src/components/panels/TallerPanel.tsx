@@ -620,58 +620,66 @@ return (
 
                     {/* Botonera de archivos DWG / IFC / PDF */}
                     <div style={{ display: 'flex', gap: '4px', marginTop: '6px' }}>
-                      {[
-                        { label: 'DWG', icon: '📐' },
-                        { label: 'IFC', icon: '🏗️' },
-                        { label: 'PDF', icon: '📄' },
-                      ].map(btn => (
-                        <button
-                          key={btn.label}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            const grupo = grupoActual?.nombre || ''
-                            const parte = el.parte.replace(/\s+/g, '_')
-                            const ext = btn.label.toLowerCase()
-                            window.open(`/api/files/${grupo}/${parte}.${ext}`, '_blank')
-                          }}
-                          style={{
-                            flex: 1,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '4px',
-                            padding: '6px 0',
-                            borderRadius: '8px',
-                            border: '1px solid rgba(255,255,255,0.15)',
-                            background: 'rgba(255,255,255,0.1)',
-                            color: 'rgba(255,255,255,0.85)',
-                            fontSize: '10px',
-                            fontWeight: 700,
-                            cursor: 'pointer',
-                            transition: 'all 0.25s cubic-bezier(0.4,0,0.2,1)',
-                            letterSpacing: '0.5px',
-                            backdropFilter: 'blur(4px)',
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = 'rgba(255,255,255,0.25)'
-                            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.4)'
-                            e.currentTarget.style.color = '#fff'
-                            e.currentTarget.style.transform = 'translateY(-1px)'
-                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)'
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'rgba(255,255,255,0.1)'
-                            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'
-                            e.currentTarget.style.color = 'rgba(255,255,255,0.85)'
-                            e.currentTarget.style.transform = 'translateY(0)'
-                            e.currentTarget.style.boxShadow = 'none'
-                          }}
-                          title={`Ver ${btn.label} - ${el.parte}`}
-                        >
-                          <span style={{ fontSize: '12px' }}>{btn.icon}</span>
-                          {btn.label}
-                        </button>
-                      ))}
+                      {(() => {
+                        // IFC: buscar por parte numerica (1001, 1002, etc.)
+                        const parteNum = el.parte.replace(/[^0-9]/g, '')
+                        // DWG: buscar por nivel del grupo (N01, N02, etc.)
+                        const nivel = grupoActual?.nombre || ''
+                        // PDF: buscar por parte con prefijo b (b1, b10, etc.)
+                        const partePDF = 'b' + parteNum
+
+                        const archivos = [
+                          { label: 'DWG', icon: '📐', url: `/taller/dwg/CTIB_HCB_MET_2${nivel.replace('N','').padStart(2,'0')}_PLA_${nivel}.dwg` },
+                          { label: 'IFC', icon: '🏗️', url: `/taller/IFC_files/${parteNum}_Qty_${el.cantidad}.ifc` },
+                          { label: 'PDF', icon: '📄', url: `/taller/partes/${partePDF} - STANDARD.pdf` },
+                        ]
+
+                        return archivos.map(btn => (
+                          <button
+                            key={btn.label}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              window.open(btn.url, '_blank')
+                            }}
+                            style={{
+                              flex: 1,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '4px',
+                              padding: '6px 0',
+                              borderRadius: '8px',
+                              border: '1px solid rgba(255,255,255,0.15)',
+                              background: 'rgba(255,255,255,0.1)',
+                              color: 'rgba(255,255,255,0.85)',
+                              fontSize: '10px',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                              transition: 'all 0.25s cubic-bezier(0.4,0,0.2,1)',
+                              letterSpacing: '0.5px',
+                              backdropFilter: 'blur(4px)',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = 'rgba(255,255,255,0.25)'
+                              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.4)'
+                              e.currentTarget.style.color = '#fff'
+                              e.currentTarget.style.transform = 'translateY(-1px)'
+                              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)'
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = 'rgba(255,255,255,0.1)'
+                              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'
+                              e.currentTarget.style.color = 'rgba(255,255,255,0.85)'
+                              e.currentTarget.style.transform = 'translateY(0)'
+                              e.currentTarget.style.boxShadow = 'none'
+                            }}
+                            title={`${btn.label} - ${el.parte}`}
+                          >
+                            <span style={{ fontSize: '12px' }}>{btn.icon}</span>
+                            {btn.label}
+                          </button>
+                        ))
+                      })()}
                     </div>
                   </div>
                 ))
