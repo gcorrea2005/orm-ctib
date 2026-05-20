@@ -478,63 +478,79 @@ app.delete('/api/productos/:id', async (req, res) => {
 })
 
 // Conexiones helpers
-const CONEXION_CATEGORIAS = [
-  { cat: 'IPE-IPE', p: 'IPE', s: 'IPE' },
-  { cat: 'IPE-HEA', p: 'IPE', s: 'HEA' },
-  { cat: 'IPE-TCUAD', p: 'IPE', s: 'TUBO CUADRADO' },
-  { cat: 'HEA-IPE', p: 'HEA', s: 'IPE' },
-  { cat: 'HEA-HEA', p: 'HEA', s: 'HEA' },
-  { cat: 'HEA-TCUAD', p: 'HEA', s: 'TUBO CUADRADO' },
-  { cat: 'TCUAD-IPE', p: 'TUBO CUADRADO', s: 'IPE' },
-  { cat: 'TCUAD-HEA', p: 'TUBO CUADRADO', s: 'HEA' },
-  { cat: 'TCUAD-TCUAD', p: 'TUBO CUADRADO', s: 'TUBO CUADRADO' },
-  { cat: 'TCUAD-PLBASE', p: 'TUBO CUADRADO', s: 'PLACA BASE' },
-  { cat: 'TRDON-IPE', p: 'TUBO REDONDO', s: 'IPE' },
-  { cat: 'TRDON-HEA', p: 'TUBO REDONDO', s: 'HEA' },
-  { cat: 'TRDON-TCUAD', p: 'TUBO REDONDO', s: 'TUBO CUADRADO' },
-  { cat: 'TRDON-PLBASE', p: 'TUBO REDONDO', s: 'PLACA BASE' },
-  { cat: 'IPE-TRDON', p: 'IPE', s: 'TUBO REDONDO' },
-  { cat: 'IPE-PLBASE', p: 'IPE', s: 'PLACA BASE' },
-  { cat: 'HEA-TRDON', p: 'HEA', s: 'TUBO REDONDO' },
-  { cat: 'HEA-PLBASE', p: 'HEA', s: 'PLACA BASE' },
-  { cat: 'TCUAD-TRDON', p: 'TUBO CUADRADO', s: 'TUBO REDONDO' },
-  { cat: 'TRDON-TRDON', p: 'TUBO REDONDO', s: 'TUBO REDONDO' },
-]
+const ALL_FAMILIES = ['IPE', 'HEA', 'HSS-RECT', 'HI', 'PHI', 'TUBO CUADRADO', 'TUBO REDONDO', 'UPN', 'PLACA BASE']
+const ABIERTOS = ['IPE', 'HEA', 'HI', 'PHI', 'UPN'] // perfiles de seccion abierta (atornillables)
+
+// Generar todas las combinaciones de categorias (9x9 = 81)
+const CONEXION_CATEGORIAS = []
+for (const p of ALL_FAMILIES) {
+  for (const s of ALL_FAMILIES) {
+    CONEXION_CATEGORIAS.push({ cat: `${p}-${s}`, p, s })
+  }
+}
 
 // Dimensiones estandar de perfiles (mm): h=altura, b=ancho, tf=espesor ala
 const PERFIL_DIM = {
+  // IPE
+  'IPE 140': { h: 140, b: 73, tf: 6.9 },
+  'IPE 160': { h: 160, b: 82, tf: 7.4 },
   'IPE 200': { h: 200, b: 100, tf: 8.5 },
   'IPE 240': { h: 240, b: 120, tf: 9.8 },
   'IPE 270': { h: 270, b: 135, tf: 10.2 },
   'IPE 300': { h: 300, b: 150, tf: 10.7 },
   'IPE 330': { h: 330, b: 160, tf: 11.5 },
-  'IPE 360': { h: 360, b: 170, tf: 12.7 },
   'IPE 400': { h: 400, b: 180, tf: 13.5 },
   'IPE 450': { h: 450, b: 190, tf: 14.6 },
-  'IPE 500': { h: 500, b: 200, tf: 16 },
   'IPE 550': { h: 550, b: 210, tf: 17.2 },
-  'IPE 600': { h: 600, b: 220, tf: 19 },
-  'HEA 200': { h: 200, b: 200, tf: 11 },
-  'HEA 220': { h: 220, b: 220, tf: 11.5 },
+  // HEA
+  'HEA 140': { h: 140, b: 140, tf: 7 },
   'HEA 240': { h: 240, b: 240, tf: 12 },
-  'HEA 260': { h: 260, b: 260, tf: 12.5 },
-  'HEA 280': { h: 280, b: 280, tf: 13 },
-  'HEA 300': { h: 300, b: 290, tf: 14 },
-  'HEA 320': { h: 320, b: 300, tf: 15.5 },
-  'HEA 340': { h: 340, b: 300, tf: 16.5 },
-  'HEA 360': { h: 360, b: 300, tf: 17.5 },
   'HEA 400': { h: 400, b: 300, tf: 19 },
   'HEA 450': { h: 450, b: 300, tf: 21 },
   'HEA 500': { h: 500, b: 300, tf: 23 },
-  'HEA 550': { h: 550, b: 300, tf: 24.5 },
   'HEA 600': { h: 600, b: 300, tf: 25 },
+  // HI (vigas H soldadas, estilo W shapes)
+  'HI 420-10': { h: 420, b: 400, tf: 10 },
+  'HI 440-10': { h: 440, b: 400, tf: 10 },
+  'HI 450-32': { h: 450, b: 420, tf: 32 },
+  'HI 590-10': { h: 590, b: 500, tf: 10 },
+  'HI 830-10': { h: 830, b: 600, tf: 10 },
+  'HI 830-11': { h: 830, b: 600, tf: 11 },
+  'HI 1130-5': { h: 1130, b: 600, tf: 5 },
+  'HI 1130-12': { h: 1130, b: 600, tf: 12 },
+  'HI 1130-13': { h: 1130, b: 600, tf: 13 },
+  // PHI
+  'PHI 830-44': { h: 830, b: 600, tf: 44 },
+  'PHI 1130-5': { h: 1130, b: 600, tf: 5 },
+  // HSS Rectangulares (tubos cuadrados/rectangulares)
+  '[]70x3': { h: 70, b: 70, tf: 3 },
+  '[]200x100x4': { h: 200, b: 100, tf: 4 },
+  '[]250x4': { h: 250, b: 250, tf: 4 },
+  '[]250x8': { h: 250, b: 250, tf: 8 },
+  '[]250x10': { h: 250, b: 250, tf: 10 },
+  '[]255x1': { h: 255, b: 255, tf: 1 },
+  '[]350x22': { h: 350, b: 350, tf: 22 },
+  '[]350x25': { h: 350, b: 350, tf: 25 },
+  '[]450x38': { h: 450, b: 450, tf: 38 },
+  '[]500x35': { h: 500, b: 500, tf: 35 },
+  '[]500x42': { h: 500, b: 500, tf: 42 },
+  '[]550x38': { h: 550, b: 550, tf: 38 },
+  '[]650x45': { h: 650, b: 650, tf: 45 },
+  '[]650x64': { h: 650, b: 650, tf: 64 },
+  // UPN (canal U)
+  'UPN 80': { h: 80, b: 45, tf: 6 },
+  'UPN 160': { h: 160, b: 65, tf: 7.5 },
 }
 
 const PERFILES_FAMILIA = {
-  'IPE': ['IPE 200','IPE 240','IPE 270','IPE 300','IPE 330','IPE 360','IPE 400','IPE 450','IPE 500','IPE 550','IPE 600'],
-  'HEA': ['HEA 200','HEA 220','HEA 240','HEA 260','HEA 280','HEA 300','HEA 320','HEA 340','HEA 360','HEA 400','HEA 450','HEA 500','HEA 550','HEA 600'],
+  'IPE': ['IPE 140','IPE 160','IPE 200','IPE 240','IPE 270','IPE 300','IPE 330','IPE 400','IPE 450','IPE 550'],
+  'HEA': ['HEA 140','HEA 240','HEA 400','HEA 450','HEA 500','HEA 600'],
+  'HSS-RECT': ['[]70x3','[]200x100x4','[]250x4','[]250x8','[]250x10','[]255x1','[]350x22','[]350x25','[]450x38','[]500x35','[]500x42','[]550x38','[]650x45','[]650x64'],
+  'HI': ['HI 420-10','HI 440-10','HI 450-32','HI 590-10','HI 830-10','HI 830-11','HI 1130-5','HI 1130-12','HI 1130-13'],
+  'PHI': ['PHI 830-44','PHI 1130-5'],
   'TUBO CUADRADO': ['TUBO CUADRADO 100x100','TUBO CUADRADO 120x120','TUBO CUADRADO 150x150','TUBO CUADRADO 200x200','TUBO CUADRADO 250x250','TUBO CUADRADO 300x300','TUBO CUADRADO 350x350','TUBO CUADRADO 400x400'],
-  'TUBO REDONDO': ['TUBO REDONDO 114.3x6','TUBO REDONDO 168.3x7','TUBO REDONDO 219.1x8','TUBO REDONDO 273x8','TUBO REDONDO 305x10','TUBO REDONDO 323.9x10','TUBO REDONDO 355.6x10','TUBO REDONDO 406.4x12'],
+  'TUBO REDONDO': ['TUBO REDONDO 114.3x6','TUBO REDONDO 168.3x7','TUBO REDONDO 219.1x8','TUBO REDONDO 273x8','TUBO REDONDO 305x10','TUBO REDONDO 323.9x10','TUBO REDONDO 355.6x10','TUBO REDONDO 406.4x12','TUBO REDONDO 508x12'],
+  'UPN': ['UPN 80','UPN 160'],
   'PLACA BASE': ['PLACA BASE'],
 }
 
@@ -562,8 +578,12 @@ function calcCordon(longitud, filete) {
 function getFamilia(perfil) {
   if (perfil.startsWith('IPE')) return 'IPE'
   if (perfil.startsWith('HEA')) return 'HEA'
+  if (perfil.startsWith('HI ')) return 'HI'
+  if (perfil.startsWith('PHI ')) return 'PHI'
+  if (perfil.startsWith('[]')) return 'HSS-RECT'
   if (perfil.startsWith('TUBO CUADRADO')) return 'TUBO CUADRADO'
   if (perfil.startsWith('TUBO REDONDO')) return 'TUBO REDONDO'
+  if (perfil.startsWith('UPN')) return 'UPN'
   if (perfil === 'PLACA BASE') return 'PLACA BASE'
   return ''
 }
@@ -718,14 +738,20 @@ app.post('/api/conexiones/generate-all', async (req, res) => {
           const key = `${pr}||${sec}`
           if (existingSet.has(key)) continue
           const dim = getDimLibres(pr)
+          const esPlatina = combo.s === 'PLACA BASE'
+          const esAbiertoP = ABIERTOS.includes(combo.p)
+          // Viga abierta -> atornillada con platina; Tubo -> soldada; PLACA BASE -> soldada
+          const tipo = esPlatina ? 'soldada' : (esAbiertoP ? 'atornillada' : 'soldada')
+          const conPlatina = esPlatina || esAbiertoP
           records.push({
             vigaPrincipal: pr,
             vigaSecundaria: sec,
             categoria: combo.cat,
-            tipoConexion: 'soldada',
-            platinaAnclaje: combo.s === 'PLACA BASE',
-            anchoPlatina: dim.ancho,
-            largoPlatina: dim.largo,
+            tipoConexion: tipo,
+            platinaAnclaje: conPlatina,
+            anchoPlatina: conPlatina ? dim.ancho : null,
+            largoPlatina: conPlatina ? dim.largo : null,
+            perforaciones: conPlatina ? 'alargadas' : null,
           })
         }
       }

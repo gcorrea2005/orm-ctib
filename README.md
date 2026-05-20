@@ -67,10 +67,10 @@
 │  TALLER   │ CONEXIONES│    BIM    │INGENIERIA │ INFORMES  │    ALMACEN      │
 │   🔧      │    🔩     │    🏗️    │    📐     │    📊     │      📦        │
 │           │           │           │           │           │                 │
-│ CRUD      │ 20 cats   │ IFC files │ Docs      │ Reports   │ Stock          │
-│ Grupos    │ 25 perf.  │ Upload    │ tecnicos  │ 3 vistas  │ Productos      │
+│ CRUD      │ 81 cats   │ IFC files │ Docs      │ Reports   │ Stock          │
+│ Grupos    │ 64 perf.  │ Upload    │ tecnicos  │ 3 vistas  │ Productos      │
 │ Elementos │ Auto-calc │ Rename    │           │ Markdown  │                 │
-│ 7 etapas  │ 1722 comb │ Delete    │           │ Print     │                 │
+│ 7 etapas  │ 3721 comb │ Delete    │           │ Print     │                 │
 │           │           │           │           │           │                 │
 └───────────┴───────────┴───────────┴───────────┴───────────┴─────────────────┘
 ```
@@ -78,7 +78,7 @@
 | Modulo | Icono | Descripcion |
 |:------:|:-----:|:------------|
 | **Taller** | 🔧 | CRUD completo de grupos (pisos N01-N24) y elementos estructurales con seguimiento de 7 etapas de produccion |
-| **Conexiones** | 🔩 | Gestion de conexiones estructurales (soldadas y atornilladas) con calculo automatico de placas, tornillos y soldadura |
+| **Conexiones** | 🔩 | Gestion de conexiones estructurales: 9 familias, 81 categorias, 3,721 combinaciones con calculo automatico de placas, tornillos y soldadura |
 | **BIM** | 🏗️ | Gestion de archivos IFC con upload, rename y delete para visualizacion de modelos BIM |
 | **Ingenieria** | 📐 | Modulo de ingenieria para documentacion tecnica y planos |
 | **Informes** | 📊 | Generacion de reportes en 3 vistas (Resumen, Detallado, Por Grupo) con exportacion a Markdown |
@@ -136,61 +136,138 @@ Cada etapa tiene un panel dedicado con formulario especifico:
 
 ---
 
+## Perfiles Estructurales — Clasificacion por Tipo
+
+**Total: 2,051 elementos**
+
+| Categoria | Perfiles |
+|:----------|:---------|
+| **Tubos Rectangulares (HSS)** | `[]650*45`, `[]350*25`, `[]650*64`, `[]250*10`, `[]500*35`, `[]350*22`, `[]450*38`, `[]550*38`, `[]500*42`, `[]250*8`, `[]200*100*4`, `[]70*3`, `[]250*4`, `[]255*1` |
+| **Perfiles IPE** | IPE140, IPE160, IPE200, IPE240, IPE270, IPE300, IPE330, IPE400, IPE450, IPE550 |
+| **Perfiles H (HEA / HI / PHI)** | HEA140, HEA240, HEA400, HEA450, HEA500, HEA600, HI420, HI440, HI450, HI590, HI830, HI1130, PHI830, PHI1130 |
+| **Tubos Redondos (HSS-R)** | ∅305×10, ∅406×12, ∅508×12 |
+| **UPN** | UPN80, UPN160 |
+
+### Top 10 — Mayor Cantidad de Elementos
+
+| # | Perfil | Elementos | Piezas |
+|:-:|:-------|----------:|-------:|
+| 1 | IPE270 | 319 | 1,664 |
+| 2 | IPE240 | 148 | 635 |
+| 3 | IPE400 | 115 | 142 |
+| 4 | IPE450 | 90 | 104 |
+| 5 | HEA450 | 75 | 97 |
+| 6 | IPE160 | 60 | 1,452 |
+| 7 | IPE330 | 68 | 268 |
+| 8 | IPE300 | 36 | 163 |
+| 9 | UPN160 | 26 | 182 |
+| 10 | IPE200 | 14 | 520 |
+
+---
+
+## Perfiles Soportados — 9 Familias (64 perfiles)
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│                                                                      │
+│  IPE (Viga IPN Europea) — 10 perfiles                                │
+│  ┌────────────────────────────────────────────────────────────────┐  │
+│  │ IPE 140 │ IPE 160 │ IPE 200 │ IPE 240 │ IPE 270 │ IPE 300   │  │
+│  │ IPE 330 │ IPE 400 │ IPE 450 │ IPE 550                        │  │
+│  └────────────────────────────────────────────────────────────────┘  │
+│                                                                      │
+│  HEA (Viga H Ancha) — 6 perfiles                                     │
+│  ┌────────────────────────────────────────────────────────────────┐  │
+│  │ HEA 140 │ HEA 240 │ HEA 400 │ HEA 450 │ HEA 500 │ HEA 600   │  │
+│  └────────────────────────────────────────────────────────────────┘  │
+│                                                                      │
+│  HSS Rectangular — 14 perfiles (dominan el 42% del peso)            │
+│  ┌────────────────────────────────────────────────────────────────┐  │
+│  │ []70x3 │ []200x100x4 │ []250x4 │ []250x8 │ []250x10 │        │  │
+│  │ []255x1│ []350x22    │ []350x25│ []450x38│ []500x35 │        │  │
+│  │ []500x42│ []550x38   │ []650x45│ []650x64                     │  │
+│  └────────────────────────────────────────────────────────────────┘  │
+│                                                                      │
+│  HI (Viga H Soldada) — 9 perfiles                                    │
+│  ┌────────────────────────────────────────────────────────────────┐  │
+│  │ HI 420-10│ HI 440-10│ HI 450-32│ HI 590-10│ HI 830-10│       │  │
+│  │ HI 830-11│ HI 1130-5│ HI 1130-12│ HI 1130-13                 │  │
+│  └────────────────────────────────────────────────────────────────┘  │
+│                                                                      │
+│  PHI (Columna H Soldada) — 2 perfiles                                │
+│  ┌────────────────────────────────────────────────────────────────┐  │
+│  │ PHI 830-44 │ PHI 1130-5                                        │  │
+│  └────────────────────────────────────────────────────────────────┘  │
+│                                                                      │
+│  Tubo Cuadrado (HSS) — 8 perfiles                                    │
+│  ┌────────────────────────────────────────────────────────────────┐  │
+│  │ 100x100 │ 120x120 │ 150x150 │ 200x200 │ 250x250 │ 300x300   │  │
+│  │ 350x350 │ 400x400                                              │  │
+│  └────────────────────────────────────────────────────────────────┘  │
+│                                                                      │
+│  Tubo Redondo (HSS-R) — 9 perfiles                                   │
+│  ┌────────────────────────────────────────────────────────────────┐  │
+│  │ 114.3x6 │ 168.3x7 │ 219.1x8 │ 273x8   │ 305x10  │ 323.9x10 │  │
+│  │ 355.6x10│ 406.4x12│ 508x12                                      │  │
+│  └────────────────────────────────────────────────────────────────┘  │
+│                                                                      │
+│  UPN (Canal U) — 2 perfiles                                          │
+│  ┌────────────────────────────────────────────────────────────────┐  │
+│  │ UPN 80 │ UPN 160                                                │  │
+│  └────────────────────────────────────────────────────────────────┘  │
+│                                                                      │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
 ## Modulo de Conexiones
 
-Sistema completo de gestion de conexiones estructurales con **1,722 combinaciones** pre-generadas.
+Sistema completo de gestion de conexiones estructurales con **3,721 combinaciones** en 9 familias de perfiles.
 
-### Matriz de Categorias (4 x 5 = 20)
-
-```
-              SECUNDARIA
-           ┌─────────┬─────────┬─────────┬─────────┬─────────┐
-           │  IPE    │  HEA    │  T.CUAD │  T.RED  │  PLBASE │
-    ┌──────┼─────────┼─────────┼─────────┼─────────┼─────────┤
-    │ IPE  │ IPE-IPE │ IPE-HEA │IPE-TCUAD│IPE-TRDON│IPE-PLBS │
-P   ├──────┼─────────┼─────────┼─────────┼─────────┼─────────┤
-R   │ HEA  │ HEA-IPE │ HEA-HEA │HEA-TCUAD│HEA-TRDON│HEA-PLBS │
-I   ├──────┼─────────┼─────────┼─────────┼─────────┼─────────┤
-N   │TCUAD │TCUAD-IPE│TCUAD-HEA│TCUAD-TCD│TCUAD-TRD│TCUAD-PLB│
-C   ├──────┼─────────┼─────────┼─────────┼─────────┼─────────┤
-I   │TRDON │TRDON-IPE│TRDON-HEA│TRDON-TCD│TRDON-TRD│TRDON-PLB│
-P   └──────┴─────────┴─────────┴─────────┴─────────┴─────────┘
-A
-L
-```
-
-### Perfiles Soportados (25 perfiles)
+### Matriz de Categorias (9 x 9 = 81)
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  IPE (Viga IPN Europea)                                         │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │ IPE 200 │ IPE 240 │ IPE 270 │ IPE 300 │ IPE 330 │ ... │   │
-│  │ IPE 360 │ IPE 400 │ IPE 450 │ IPE 500 │ IPE 550 │     │   │
-│  │ IPE 600                                                  │   │
-│  └─────────────────────────────────────────────────────────┘   │
-│                                                                 │
-│  HEA (Viga H Ancha)                                             │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │ HEA 200 │ HEA 220 │ HEA 240 │ HEA 260 │ HEA 280 │ ... │   │
-│  │ HEA 300 │ HEA 320 │ HEA 340 │ HEA 360 │ HEA 400 │     │   │
-│  │ HEA 450 │ HEA 500 │ HEA 550 │ HEA 600                  │   │
-│  └─────────────────────────────────────────────────────────┘   │
-│                                                                 │
-│  Tubo Cuadrado (HSS)                                            │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │ 100x100 │ 120x120 │ 150x150 │ 200x200 │ 250x250 │     │   │
-│  │ 300x300 │ 350x350 │ 400x400                             │   │
-│  └─────────────────────────────────────────────────────────┘   │
-│                                                                 │
-│  Tubo Redondo (HSS)                                             │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │ 114.3x6 │ 168.3x7 │ 219.1x8 │ 273x8   │ 305x10  │     │   │
-│  │ 323.9x10│ 355.6x10│ 406.4x12                             │   │
-│  └─────────────────────────────────────────────────────────┘   │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
+                  SECUNDARIA
+        IPE  HEA  HSS  HI   PHI  TCD  TRD  UPN  PLB
+       ┌────┬────┬────┬────┬────┬────┬────┬────┬────┐
+  IPE  │ 100│ 60 │ 140│ 90 │ 20 │ 80 │ 90 │ 20 │ 10 │
+       ├────┼────┼────┼────┼────┼────┼────┼────┼────┤
+  HEA  │ 60 │ 36 │ 84 │ 54 │ 12 │ 48 │ 54 │ 12 │  6 │
+       ├────┼────┼────┼────┼────┼────┼────┼────┼────┤
+  HSS  │ 140│ 84 │ 196│ 126│ 28 │ 112│ 126│ 28 │ 14 │
+P      ├────┼────┼────┼────┼────┼────┼────┼────┼────┤
+R  HI  │ 90 │ 54 │ 126│ 81 │ 18 │ 72 │ 81 │ 18 │  9 │
+I      ├────┼────┼────┼────┼────┼────┼────┼────┼────┤
+N  PHI │ 20 │ 12 │ 28 │ 18 │  4 │ 16 │ 18 │  4 │  2 │
+C      ├────┼────┼────┼────┼────┼────┼────┼────┼────┤
+I  TCD │ 80 │ 48 │ 112│ 72 │ 16 │ 64 │ 72 │ 16 │  8 │
+P      ├────┼────┼────┼────┼────┼────┼────┼────┼────┤
+A  TRD │ 90 │ 54 │ 126│ 81 │ 18 │ 72 │ 81 │ 18 │  9 │
+L      ├────┼────┼────┼────┼────┼────┼────┼────┼────┤
+   UPN │ 20 │ 12 │ 28 │ 18 │  4 │ 16 │ 18 │  4 │  2 │
+       ├────┼────┼────┼────┼────┼────┼────┼────┼────┤
+   PLB │ 10 │  6 │ 14 │  9 │  2 │  8 │  9 │  2 │  1 │
+       └────┴────┴────┴────┴────┴────┴────┴────┴────┘
+
+  HSS = HSS Rectangular ([])    TCD = Tubo Cuadrado
+  TRD = Tubo Redondo            UPN = Canal U
+  PLB = Placa Base              HI/PHI = Viga H soldada
+```
+
+### Reglas de Tipo de Conexion
+
+```
+  Viga abierta como principal (IPE/HEA/HI/PHI/UPN)
+    → ATORNILLADA con platina soldada
+    → Platina: ancho = (b-tf)/2, largo = h-2*tf
+    → Perforaciones: alargadas (default)
+
+  Tubo como principal (HSS-RECT/TCUAD/TRDON)
+    → SOLDADA directa, sin platina
+
+  PLACA BASE como secundaria
+    → SOLDADA + platina de anclaje
 ```
 
 ### Dimensiones Libres — Platina de Conexion
@@ -286,7 +363,7 @@ orm-ctib/
 │   │   ├── TimelineBar.tsx        ← Barra visual de 7 etapas
 │   │   └── 📁 panels/
 │   │       ├── TallerPanel.tsx    ← CRUD Taller (grupos + elementos)
-│   │       ├── ConexionesPanel    ← Conexiones estructurales (1722)
+│   │       ├── ConexionesPanel    ← Conexiones (9 familias, 3721)
 │   │       ├── BimPanel.tsx       ← Archivos BIM/IFC
 │   │       ├── InformesPanel.tsx  ← Reportes con 3 vistas
 │   │       ├── PlanosTallerPanel  ← Etapa 1: Planos
@@ -413,11 +490,11 @@ orm-ctib/
 ### Conexiones
 
 ```
-  GET    /api/conexiones                Listar (ordenadas por peso)
+  GET    /api/conexiones                Listar todas las conexiones
   POST   /api/conexiones                Crear (calculo automatico)
   PUT    /api/conexiones/:id            Actualizar (recalculo auto)
   DELETE /api/conexiones/:id            Eliminar
-  POST   /api/conexiones/generate-all   Generar 1722 combinaciones
+  POST   /api/conexiones/generate-all   Generar 3,721 combinaciones (9x9)
 ```
 
 ### Usuarios
@@ -539,7 +616,7 @@ npm run start
 │  Version:       1.0                                         │
 │  Elementos:     2,051 estructurales                         │
 │  Peso total:    ~590 toneladas                              │
-│  Conexiones:    1,722 combinaciones                         │
+│  Conexiones:    3,721 combinaciones                         │
 │  Pisos:         N01-N24                                     │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘

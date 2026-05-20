@@ -68,13 +68,47 @@
 | stockId | Int FK |
 | createdAt, updatedAt | DateTime |
 
+### Conexion
+| Field | Type |
+|-------|------|
+| id | Int PK |
+| vigaPrincipal | String |
+| vigaSecundaria | String |
+| categoria | String? |
+| tipoConexion | String (soldada/atornillada) |
+| platinaAnclaje | Boolean |
+| anchoPlatina, largoPlatina, espesorPlatina | Float? |
+| pesoPlatina | Float? |
+| perforaciones | String? (default: alargadas) |
+| numTornillos | Int? |
+| diametroTornillo, largoTornillo | Float? |
+| longitudCordon | Float? |
+| tamanoFilete | Float? |
+| volumenCordon, pesoCordon | Float? |
+| observaciones | String? |
+| createdAt, updatedAt | DateTime |
+
 ## Key Files
-- `server/index.js` - Express API
-- `prisma/schema.prisma` - Schema
+- `server/index.js` - Express API (828 lines, all routes)
+- `prisma/schema.prisma` - Schema (7 models)
 - `src/lib/api.ts` - API client
 - `src/components/panels/TallerPanel.tsx` - Taller CRUD
+- `src/components/panels/ConexionesPanel.tsx` - Conexiones (9 families, 81 combos)
 - `src/components/panels/InformesPanel.tsx` - Reports with tabs
 - `src/App.css` - Styles (print-optimized)
+
+## Conexiones Module (2026-05-20)
+- **9 familias de perfiles:** IPE, HEA, HSS-RECT, HI, PHI, TUBO CUADRADO, TUBO REDONDO, UPN, PLACA BASE
+- **81 categorias** (9x9 matriz generada dinamicamente)
+- **3,721 conexiones** en base de datos
+- **1,740 atornilladas** (con platina soldada): IPE/HEA/HI/PHI/UPN como principal
+- **1,981 soldadas** directas: tubos como principal, o PLACA BASE
+- **Perforaciones alargadas** por defecto en todas las conexiones con platina (1,800)
+- **Formulario con 5 secciones:** Conexion, Platina, Tornillos, Soldadura, Notas
+- Perfiles HSS-RECT usan notacion `[]` (ej: `[]650x45`)
+- Perfiles HI/PHI son vigas H soldadas (ej: `HI 830-10`, `PHI 1130-5`)
+- Regla: seccion abierta como principal -> atornillada; tubo como principal -> soldada
+- Dimensiones libres: `ancho = (b-tf)/2`, `largo = h-2*tf` (auto-calculadas)
 
 ## API Endpoints
 
@@ -102,6 +136,15 @@
 | POST | `/api/grupos/:grupoId/elementos` | Create |
 | PUT | `/api/elementos/:id` | Update |
 | DELETE | `/api/elementos/:id` | Delete |
+
+### Conexiones
+| Method | URL | Description |
+|--------|-----|-------------|
+| GET | `/api/conexiones` | List all |
+| POST | `/api/conexiones` | Create (auto-calc) |
+| PUT | `/api/conexiones/:id` | Update (recalc) |
+| DELETE | `/api/conexiones/:id` | Delete |
+| POST | `/api/conexiones/generate-all` | Generate all combos |
 
 ### Stocks/Productos - Full CRUD
 
