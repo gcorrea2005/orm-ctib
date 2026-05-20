@@ -621,9 +621,9 @@ return (
                     {/* Botonera de archivos DWG / IFC / PDF */}
                     <div style={{ display: 'flex', gap: '4px', marginTop: '6px' }}>
                       {[
-                        { label: 'DWG', icon: '📐', color: '#2563eb', bg: 'rgba(37,99,235,0.25)' },
-                        { label: 'IFC', icon: '🏗️', color: '#059669', bg: 'rgba(5,150,105,0.25)' },
-                        { label: 'PDF', icon: '📄', color: '#dc2626', bg: 'rgba(220,38,38,0.25)' },
+                        { label: 'DWG', icon: '📐' },
+                        { label: 'IFC', icon: '🏗️' },
+                        { label: 'PDF', icon: '📄' },
                       ].map(btn => (
                         <button
                           key={btn.label}
@@ -632,7 +632,6 @@ return (
                             const grupo = grupoActual?.nombre || ''
                             const parte = el.parte.replace(/\s+/g, '_')
                             const ext = btn.label.toLowerCase()
-                            // Buscar archivo en public/cant/ o public/ctib/
                             window.open(`/api/files/${grupo}/${parte}.${ext}`, '_blank')
                           }}
                           style={{
@@ -641,24 +640,31 @@ return (
                             alignItems: 'center',
                             justifyContent: 'center',
                             gap: '4px',
-                            padding: '5px 0',
-                            borderRadius: '6px',
-                            border: `1px solid ${btn.color}33`,
-                            background: btn.bg,
-                            color: btn.color,
+                            padding: '6px 0',
+                            borderRadius: '8px',
+                            border: '1px solid rgba(255,255,255,0.15)',
+                            background: 'rgba(255,255,255,0.1)',
+                            color: 'rgba(255,255,255,0.85)',
                             fontSize: '10px',
                             fontWeight: 700,
                             cursor: 'pointer',
-                            transition: 'all 0.2s',
+                            transition: 'all 0.25s cubic-bezier(0.4,0,0.2,1)',
                             letterSpacing: '0.5px',
+                            backdropFilter: 'blur(4px)',
                           }}
                           onMouseEnter={(e) => {
-                            e.currentTarget.style.background = `${btn.color}40`
-                            e.currentTarget.style.transform = 'scale(1.03)'
+                            e.currentTarget.style.background = 'rgba(255,255,255,0.25)'
+                            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.4)'
+                            e.currentTarget.style.color = '#fff'
+                            e.currentTarget.style.transform = 'translateY(-1px)'
+                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)'
                           }}
                           onMouseLeave={(e) => {
-                            e.currentTarget.style.background = btn.bg
-                            e.currentTarget.style.transform = 'scale(1)'
+                            e.currentTarget.style.background = 'rgba(255,255,255,0.1)'
+                            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'
+                            e.currentTarget.style.color = 'rgba(255,255,255,0.85)'
+                            e.currentTarget.style.transform = 'translateY(0)'
+                            e.currentTarget.style.boxShadow = 'none'
                           }}
                           title={`Ver ${btn.label} - ${el.parte}`}
                         >
