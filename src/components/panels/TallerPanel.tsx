@@ -645,12 +645,21 @@ return (
                         return archivos.map(btn => (
                           <button
                             key={btn.label}
-                            onClick={(e) => {
+                            onClick={async (e) => {
                               e.stopPropagation()
-                              if ('isIFC' in btn && btn.isIFC) {
-                                setVisorIFC({ path: btn.url, nombre: `${el.parte} - ${el.perfil}` })
-                              } else {
-                                window.open(btn.url, '_blank')
+                              try {
+                                const res = await fetch(btn.url, { method: 'HEAD' })
+                                if (!res.ok) {
+                                  alert(`Archivo no encontrado: ${btn.label}\n${btn.url}`)
+                                  return
+                                }
+                                if ('isIFC' in btn && btn.isIFC) {
+                                  setVisorIFC({ path: btn.url, nombre: `${el.parte} - ${el.perfil}` })
+                                } else {
+                                  window.open(btn.url, '_blank')
+                                }
+                              } catch {
+                                alert(`Error verificando archivo: ${btn.label}`)
                               }
                             }}
                             style={{
