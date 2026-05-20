@@ -621,16 +621,22 @@ return (
                     {/* Botonera de archivos DWG / IFC / PDF */}
                     <div style={{ display: 'flex', gap: '4px', marginTop: '6px' }}>
                       {(() => {
-                        // IFC: buscar por parte numerica (1001, 1002, etc.)
+                        // IFC: Tekla exporta como {parte}_Qty_{cant}.ifc o b_{parte}_Qty_{cant}.ifc
+                        const parteNorm = el.parte.replace(/\//g, '_').replace(/\s+/g, '_')
                         const parteNum = el.parte.replace(/[^0-9]/g, '')
-                        // DWG: buscar por nivel del grupo (N01, N02, etc.)
+                        const tienePrefijoB = el.parte.toLowerCase().startsWith('b')
+                        const ifcFile = tienePrefijoB
+                          ? `b_${parteNum}_Qty_${el.cantidad}.ifc`
+                          : `${parteNum}_Qty_${el.cantidad}.ifc`
+                        // DWG: por nivel del grupo
                         const nivel = grupoActual?.nombre || ''
-                        // PDF: buscar por parte con prefijo b (b1, b10, etc.)
-                        const partePDF = 'b' + parteNum
+                        const nivelNum = nivel.replace('N','').padStart(2,'0')
+                        // PDF: siempre con prefijo b (b1, b10, b100, etc.)
+                        const partePDF = `b${parteNum}`
 
                         const archivos = [
-                          { label: 'DWG', icon: '📐', url: `/taller/dwg/CTIB_HCB_MET_2${nivel.replace('N','').padStart(2,'0')}_PLA_${nivel}.dwg` },
-                          { label: 'IFC', icon: '🏗️', url: `/taller/IFC_files/${parteNum}_Qty_${el.cantidad}.ifc` },
+                          { label: 'DWG', icon: '📐', url: `/taller/dwg/CTIB_HCB_MET_2${nivelNum}_PLA_${nivel}.dwg` },
+                          { label: 'IFC', icon: '🏗️', url: `/taller/IFC_files/${ifcFile}` },
                           { label: 'PDF', icon: '📄', url: `/taller/partes/${partePDF} - STANDARD.pdf` },
                         ]
 
