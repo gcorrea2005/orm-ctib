@@ -386,7 +386,12 @@ export default function ConexionesPanel() {
                     setForm({
                       ...form,
                       vigaPrincipal: v,
-                      ...(dim ? { anchoPlatina: dim.ancho.toString(), largoPlatina: dim.largo.toString() } : {})
+                      ...(dim ? {
+                        anchoPlatina: dim.ancho.toString(),
+                        largoPlatina: dim.largo.toString(),
+                        longitudCordon: Math.round(2 * (dim.largo + 2 * dim.ancho) * 10) / 10 + '',
+                        tamanoFilete: '6'
+                      } : {})
                     })
                   }}
                   style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #d0d0d0', fontSize: '13px' }}
