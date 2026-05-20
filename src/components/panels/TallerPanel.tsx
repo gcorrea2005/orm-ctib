@@ -637,7 +637,7 @@ return (
                         const partePDF = `b${parteNum}`
 
                         const archivos = [
-                          { label: 'DWG', icon: '📐', url: `/taller/dwg/CTIB_HCB_MET_2${nivelNum}_PLA_${nivel}.dwg` },
+                          { label: 'DWG', icon: '📐', url: `/taller/DWG_files/${tienePrefijoB ? 'b_' + parteNum : parteNum}_Qty_${el.cantidad}.dwg` },
                           { label: 'IFC', icon: '🏗️', url: `/taller/IFC_files/${ifcFile}`, isIFC: true },
                           { label: 'PDF', icon: '📄', url: `/taller/partes/${partePDF} - STANDARD.pdf` },
                         ]
