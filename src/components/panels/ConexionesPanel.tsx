@@ -390,7 +390,10 @@ export default function ConexionesPanel() {
                         anchoPlatina: dim.ancho.toString(),
                         largoPlatina: dim.largo.toString(),
                         longitudCordon: Math.round(2 * (dim.largo + 2 * dim.ancho) * 10) / 10 + '',
-                        tamanoFilete: '6'
+                        tamanoFilete: '6',
+                        numTornillos: '3',
+                        diametroTornillo: '16',
+                        largoTornillo: '38'
                       } : {})
                     })
                   }}

@@ -754,6 +754,9 @@ app.post('/api/conexiones/generate-all', async (req, res) => {
             perforaciones: conPlatina ? 'alargadas' : null,
             longitudCordon: conPlatina ? Math.round(2 * ((dim.largo || 0) + 2 * (dim.ancho || 0)) * 10) / 10 : null,
             tamanoFilete: conPlatina ? 6 : null,
+            numTornillos: conPlatina ? 3 : null,
+            diametroTornillo: conPlatina ? 16 : null,
+            largoTornillo: conPlatina ? 38 : null,
           })
         }
       }
