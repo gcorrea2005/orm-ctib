@@ -2,22 +2,22 @@ import { useRef, useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import * as THREE from 'three'
 
-// ─── Steel Profiles ───────────────────────────────────────────────────
-const STEEL_PROFILES: Record<string, { h: number; b: number; color: string; family: string }> = {
-  'IPE 200': { h: 200, b: 100, color: '#4a90d9', family: 'IPE' },
-  'IPE 270': { h: 270, b: 135, color: '#4a90d9', family: 'IPE' },
-  'IPE 330': { h: 330, b: 160, color: '#4a90d9', family: 'IPE' },
-  'IPE 400': { h: 400, b: 180, color: '#4a90d9', family: 'IPE' },
-  'IPE 450': { h: 450, b: 190, color: '#4a90d9', family: 'IPE' },
-  'HEA 240': { h: 240, b: 240, color: '#e67e22', family: 'HEA' },
-  'HEA 400': { h: 400, b: 300, color: '#e67e22', family: 'HEA' },
-  'HEA 500': { h: 500, b: 300, color: '#e67e22', family: 'HEA' },
-  '[]650x45': { h: 650, b: 650, color: '#e74c3c', family: 'HSS' },
-  '[]350x25': { h: 350, b: 350, color: '#e74c3c', family: 'HSS' },
-  'HI 830-10': { h: 830, b: 600, color: '#9b59b6', family: 'HI' },
-  '∅305x10': { h: 305, b: 305, color: '#2ecc71', family: 'TRD' },
-  '∅406x12': { h: 406, b: 406, color: '#2ecc71', family: 'TRD' },
-  'UPN 160': { h: 160, b: 65, color: '#f39c12', family: 'UPN' },
+// ─── Steel Profiles (h, b, tf, tw all in mm) ─────────────────────────
+const STEEL_PROFILES: Record<string, { h: number; b: number; tf: number; tw: number; color: string; family: string }> = {
+  'IPE 200':  { h: 200, b: 100, tf: 8.5,  tw: 5.6,  color: '#4a90d9', family: 'IPE' },
+  'IPE 270':  { h: 270, b: 135, tf: 10.2, tw: 6.6,  color: '#4a90d9', family: 'IPE' },
+  'IPE 330':  { h: 330, b: 160, tf: 11.5, tw: 7.5,  color: '#4a90d9', family: 'IPE' },
+  'IPE 400':  { h: 400, b: 180, tf: 13.5, tw: 8.6,  color: '#4a90d9', family: 'IPE' },
+  'IPE 450':  { h: 450, b: 190, tf: 14.6, tw: 9.4,  color: '#4a90d9', family: 'IPE' },
+  'HEA 240':  { h: 240, b: 240, tf: 12,   tw: 7.5,  color: '#e67e22', family: 'HEA' },
+  'HEA 400':  { h: 400, b: 300, tf: 19,   tw: 11,   color: '#e67e22', family: 'HEA' },
+  'HEA 500':  { h: 500, b: 300, tf: 23,   tw: 12,   color: '#e67e22', family: 'HEA' },
+  '[]650x45': { h: 650, b: 650, tf: 45,   tw: 45,   color: '#e74c3c', family: 'HSS' },
+  '[]350x25': { h: 350, b: 350, tf: 25,   tw: 25,   color: '#e74c3c', family: 'HSS' },
+  'HI 830-10':{ h: 830, b: 600, tf: 10,   tw: 10,   color: '#9b59b6', family: 'HI' },
+  '∅305x10':  { h: 305, b: 305, tf: 10,   tw: 10,   color: '#2ecc71', family: 'TRD' },
+  '∅406x12':  { h: 406, b: 406, tf: 12,   tw: 12,   color: '#2ecc71', family: 'TRD' },
+  'UPN 160':  { h: 160, b: 65,  tf: 7.5,  tw: 6,    color: '#f39c12', family: 'UPN' },
 }
 
 type Beam = {
@@ -137,29 +137,112 @@ export default function HomePage() {
     return new THREE.Vector3(Math.round(v.x / g) * g, Math.round(v.y / g) * g, Math.round(v.z / g) * g)
   }, [])
 
+  // ─── Cross-section shape generators (2D, centered at origin, in meters) ─
+  const makeIShape = useCallback((h: number, b: number, tf: number, tw: number): THREE.Shape => {
+    const s = 0.001 // mm to m
+    const hh = (h * s) / 2, hb = (b * s) / 2, htf = tf * s, htw = (tw * s) / 2
+    const shape = new THREE.Shape()
+    shape.moveTo(-hb, -hh)
+    shape.lineTo(hb, -hh)
+    shape.lineTo(hb, -hh + htf)
+    shape.lineTo(htw, -hh + htf)
+    shape.lineTo(htw, hh - htf)
+    shape.lineTo(hb, hh - htf)
+    shape.lineTo(hb, hh)
+    shape.lineTo(-hb, hh)
+    shape.lineTo(-hb, hh - htf)
+    shape.lineTo(-htw, hh - htf)
+    shape.lineTo(-htw, -hh + htf)
+    shape.lineTo(-hb, -hh + htf)
+    shape.closePath()
+    return shape
+  }, [])
+
+  const makeHSSRect = useCallback((h: number, b: number, tf: number): THREE.Shape => {
+    const s = 0.001
+    const hh = (h * s) / 2, hb = (b * s) / 2, t = tf * s
+    const outer = new THREE.Path()
+    outer.moveTo(-hb, -hh); outer.lineTo(hb, -hh); outer.lineTo(hb, hh); outer.lineTo(-hb, hh); outer.closePath()
+    const inner = new THREE.Path()
+    inner.moveTo(-hb + t, -hh + t); inner.lineTo(-hb + t, hh - t); inner.lineTo(hb - t, hh - t); inner.lineTo(hb - t, -hh + t); inner.closePath()
+    const shape = new THREE.Shape(outer.getPoints())
+    shape.holes.push(inner)
+    return shape
+  }, [])
+
+  const makeHSSRound = useCallback((diameter: number, thickness: number): THREE.Shape => {
+    const s = 0.001
+    const r = (diameter * s) / 2, t = thickness * s
+    const outer = new THREE.Path()
+    outer.absarc(0, 0, r, 0, Math.PI * 2, false)
+    const inner = new THREE.Path()
+    inner.absarc(0, 0, r - t, 0, Math.PI * 2, true)
+    const shape = new THREE.Shape(outer.getPoints(32))
+    shape.holes.push(inner)
+    return shape
+  }, [])
+
+  const makeUPN = useCallback((h: number, b: number, tf: number, tw: number): THREE.Shape => {
+    const s = 0.001
+    const hh = (h * s) / 2, hb = (b * s) / 2, htf = tf * s, htw = (tw * s) / 2
+    const shape = new THREE.Shape()
+    shape.moveTo(-htw, -hh)
+    shape.lineTo(hb, -hh)
+    shape.lineTo(hb, -hh + htf)
+    shape.lineTo(-htw + htf, -hh + htf)
+    shape.lineTo(-htw + htf, hh - htf)
+    shape.lineTo(hb, hh - htf)
+    shape.lineTo(hb, hh)
+    shape.lineTo(-htw, hh)
+    shape.closePath()
+    return shape
+  }, [])
+
+  const getCrossSection = useCallback((profile: string): THREE.Shape => {
+    const p = STEEL_PROFILES[profile]
+    if (!p) return makeIShape(200, 100, 8.5, 5.6) // default IPE 200
+    switch (p.family) {
+      case 'IPE': case 'HI': return makeIShape(p.h, p.b, p.tf, p.tw)
+      case 'HEA': return makeIShape(p.h, p.b, p.tf, p.tw) // HEA also I-shape but wider flanges
+      case 'HSS': return makeHSSRect(p.h, p.b, p.tf)
+      case 'TRD': return makeHSSRound(p.h, p.tf)
+      case 'UPN': return makeUPN(p.h, p.b, p.tf, p.tw)
+      default: return makeIShape(p.h, p.b, p.tf, p.tw)
+    }
+  }, [makeIShape, makeHSSRect, makeHSSRound, makeUPN])
+
   const createBeamMesh = useCallback((start: THREE.Vector3, end: THREE.Vector3, profile: string, ghost = false) => {
-    const p = STEEL_PROFILES[profile] || { h: 200, b: 100, color: '#888' }
-    const hScale = p.h / 500, bScale = p.b / 500
+    const p = STEEL_PROFILES[profile] || { h: 200, b: 100, tf: 8.5, tw: 5.6, color: '#888', family: 'IPE' }
     const dir = new THREE.Vector3().subVectors(end, start)
     const length = dir.length()
     const mid = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5)
-    const geo = new THREE.BoxGeometry(bScale, hScale, length)
+
+    const shape = getCrossSection(profile)
+    const extrudeSettings = { depth: length, bevelEnabled: false }
+    const geo = new THREE.ExtrudeGeometry(shape, extrudeSettings)
+    // Center the extrusion so midpoint of beam is at origin
+    geo.translate(0, 0, -length / 2)
+
     const mat = ghost
-      ? new THREE.MeshBasicMaterial({ color: p.color, transparent: true, opacity: 0.4, wireframe: true })
-      : new THREE.MeshPhysicalMaterial({ color: p.color, metalness: 0.8, roughness: 0.3, clearcoat: 0.3 })
+      ? new THREE.MeshBasicMaterial({ color: p.color, transparent: true, opacity: 0.3, wireframe: true })
+      : new THREE.MeshPhysicalMaterial({ color: p.color, metalness: 0.85, roughness: 0.25, clearcoat: 0.4 })
+
     const mesh = new THREE.Mesh(geo, mat)
     mesh.position.copy(mid)
+    // Orient: extrude goes along Z by default, rotate to match beam direction
     const axis = new THREE.Vector3(0, 0, 1)
     mesh.quaternion.setFromUnitVectors(axis, dir.clone().normalize())
+
     if (!ghost) {
       const edges = new THREE.EdgesGeometry(geo)
-      const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.3 }))
+      const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.25 }))
       mesh.add(line)
       mesh.castShadow = true
       mesh.receiveShadow = true
     }
+
     return { mesh, length: Math.round(length * 100) }
-  }, [])
+  }, [getCrossSection])
 
   const placeBeam = useCallback((start: THREE.Vector3, end: THREE.Vector3) => {
     const scene = sceneRef.current
