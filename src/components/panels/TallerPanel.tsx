@@ -640,7 +640,7 @@ return (
                         const archivos = [
                           { label: 'DWG', icon: '📐', url: `/taller/DWG_files/${tienePrefijoB ? 'b_' + parteNum : parteNum}_Qty_${el.cantidad}.dwg` },
                           { label: 'IFC', icon: '🏗️', url: `/taller/IFC_files/${ifcFile}`, isIFC: true },
-                          { label: 'PDF', icon: '📄', url: `/taller/PDF_files/${partePDF} - STANDARD.pdf` },
+                          { label: 'PDF', icon: '📄', url: `/taller/PDF_files/${encodeURIComponent(partePDF + ' - STANDARD.pdf')}` },
                         ]
 
                         return archivos.map(btn => (
