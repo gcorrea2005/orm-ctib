@@ -30,7 +30,7 @@ const tabs: Tab[] = [
 
 export default function Dashboard() {
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState('usuarios')
+  const [activeTab, setActiveTab] = useState('taller')
   const { user, logout } = useAuth()
 
   const handleLogout = () => {
