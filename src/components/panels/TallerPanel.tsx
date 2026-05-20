@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useTaller, type Grupo } from '../../context/TallerContext'
 import TimelineBar from '../TimelineBar'
+import IFCViewer from '../IFCViewer'
 import PlanosTallerPanel from './PlanosTallerPanel'
 import CortePerforacionPanel from './CortePerforacionPanel'
 import ArmadoPanel from './ArmadoPanel'
@@ -41,6 +42,7 @@ export default function TallerPanel() {
   const [showLevelDropdown, setShowLevelDropdown] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedActividad, setSelectedActividad] = useState<any>(null)
+  const [visorIFC, setVisorIFC] = useState<{ path: string; nombre: string } | null>(null)
   const [showPlanosTaller, setShowPlanosTaller] = useState(false)
   const [showCortePerforacion, setShowCortePerforacion] = useState(false)
   const [showArmado, setShowArmado] = useState(false)
@@ -636,7 +638,7 @@ return (
 
                         const archivos = [
                           { label: 'DWG', icon: '📐', url: `/taller/dwg/CTIB_HCB_MET_2${nivelNum}_PLA_${nivel}.dwg` },
-                          { label: 'IFC', icon: '🏗️', url: `/taller/IFC_files/${ifcFile}` },
+                          { label: 'IFC', icon: '🏗️', url: `/taller/IFC_files/${ifcFile}`, isIFC: true },
                           { label: 'PDF', icon: '📄', url: `/taller/partes/${partePDF} - STANDARD.pdf` },
                         ]
 
@@ -645,7 +647,11 @@ return (
                             key={btn.label}
                             onClick={(e) => {
                               e.stopPropagation()
-                              window.open(btn.url, '_blank')
+                              if ('isIFC' in btn && btn.isIFC) {
+                                setVisorIFC({ path: btn.url, nombre: `${el.parte} - ${el.perfil}` })
+                              } else {
+                                window.open(btn.url, '_blank')
+                              }
                             }}
                             style={{
                               flex: 1,
@@ -779,6 +785,13 @@ return (
               actividad={selectedActividad}
               onSave={handleSaveEntrega}
               onClose={() => { setShowEntrega(false); setSelectedActividad(null); }}
+            />
+          )}
+          {visorIFC && (
+            <IFCViewer
+              filePath={visorIFC.path}
+              fileName={visorIFC.nombre}
+              onClose={() => setVisorIFC(null)}
             />
           )}
         </div>
