@@ -59,6 +59,17 @@ export default function Dashboard() {
           <span className="logo-icon">⬡</span>
           <span className="logo-text">CTIB<span className="ai-badge">AI</span></span>
         </div>
+        <button
+          onClick={() => navigate('/')}
+          style={{
+            margin: '0 12px 8px', padding: '8px 12px', borderRadius: 8,
+            border: '1px solid rgba(139,92,246,0.3)', cursor: 'pointer',
+            background: 'linear-gradient(135deg, rgba(139,92,246,0.15), rgba(99,102,241,0.15))',
+            color: '#a78bfa', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8,
+          }}
+        >
+          <span style={{ fontSize: 16 }}>🎮</span> Steel Builder
+        </button>
         <nav className="nav-tabs">
           {tabs.map(tab => (
             <button

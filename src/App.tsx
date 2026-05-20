@@ -4,6 +4,7 @@ import { ThemeProvider } from './context/ThemeContext'
 import { TallerProvider } from './context/TallerContext'
 import Login from './components/Login'
 import Dashboard from './components/Dashboard'
+import HomePage from './components/HomePage'
 import './App.css'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -17,21 +18,29 @@ function AppRoutes() {
 
   return (
     <Routes>
-      <Route 
-        path="/login" 
-        element={user ? <Navigate to="/dashboard" replace /> : <Login />} 
+      <Route
+        path="/login"
+        element={user ? <Navigate to="/" replace /> : <Login />}
       />
-      <Route 
-        path="/dashboard" 
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <HomePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard"
         element={
           <ProtectedRoute>
             <TallerProvider>
               <Dashboard />
             </TallerProvider>
           </ProtectedRoute>
-        } 
+        }
       />
-      <Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} replace />} />
+      <Route path="*" element={<Navigate to={user ? "/" : "/login"} replace />} />
     </Routes>
   )
 }
