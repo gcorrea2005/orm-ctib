@@ -533,7 +533,6 @@ npm run start
 │                 Especialista en Estructuras Metalicas       │
 │                                                             │
 │  Cliente:       Consorcio Camara                            │
-│  Ingeniero:     Hugo Bermudez Buitrago                      │
 │  Empresa:       Estructuras Metalicas HcB                   │
 │  Ubicacion:     Bogota, Colombia                            │
 │  Entregables:   27 archivos IFC (BIM) via OneDrive          │
