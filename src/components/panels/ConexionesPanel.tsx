@@ -394,8 +394,8 @@ export default function ConexionesPanel() {
                         numTornillos: '3',
                         diametroTornillo: '16',
                         largoTornillo: '38',
-                        volumenCordon: Math.round(Math.round(2 * (dim.largo + 2 * dim.ancho) * 10) / 10 * 36 / 2 / 1000 * 100) / 100 + '',
-                        pesoCordon: Math.round(Math.round(2 * (dim.largo + 2 * dim.ancho) * 10) / 10 * 36 / 2 / 1000 * 7.85 * 100) / 100 + ''
+                        volumenCordon: Math.round(Math.round(2 * (dim.largo + 2 * dim.ancho) * 10) / 10 * 36 / 2 * 100) / 100 + '',
+                        pesoCordon: Math.round(Math.round(2 * (dim.largo + 2 * dim.ancho) * 10) / 10 * 36 / 2 * 0.00000785 * 10000) / 10000 + ''
                       } : {})
                     })
                   }}
