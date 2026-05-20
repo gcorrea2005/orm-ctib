@@ -39,6 +39,8 @@
 │   Metalicas HcB (Bogota, Colombia) que acompana el ciclo de vida           │
 │   completo de elementos estructurales metalicos:                            │
 │                                                                             │
+│   Incluye Steel Builder 3D: juego interactivo de construccion con AI        │
+│                                                                             │
 │   ┌──────────┐   ┌──────────┐   ┌──────────┐   ┌──────────┐               │
 │   │ PLANOS   │──>│  CORTE   │──>│  ARMADO  │──>│ SOLDADURA│               │
 │   │    📐    │   │    ✂️    │   │    🔧    │   │    🔥    │               │
@@ -77,12 +79,108 @@
 
 | Modulo | Icono | Descripcion |
 |:------:|:-----:|:------------|
-| **Taller** | 🔧 | CRUD completo de grupos (pisos N01-N24) y elementos estructurales con seguimiento de 7 etapas de produccion |
+| **Taller** | 🔧 | CRUD completo de grupos (pisos N01-N24) y elementos con seguimiento de 7 etapas, botonera DWG/IFC/PDF con visor 3D integrado |
 | **Conexiones** | 🔩 | Gestion de conexiones estructurales: 9 familias, 81 categorias, 3,721 combinaciones con calculo automatico de placas, tornillos y soldadura |
 | **BIM** | 🏗️ | Gestion de archivos IFC con upload, rename y delete para visualizacion de modelos BIM |
 | **Ingenieria** | 📐 | Modulo de ingenieria para documentacion tecnica y planos |
 | **Informes** | 📊 | Generacion de reportes en 3 vistas (Resumen, Detallado, Por Grupo) con exportacion a Markdown |
 | **Almacen** | 📦 | Control de stock de materiales y productos con CRUD completo |
+
+---
+
+## Steel Builder 3D — Juego Interactivo con AI
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                                                             │
+│   Despues del login, el usuario entra al Steel Builder 3D:                  │
+│   un entorno interactivo de construccion de estructuras metalicas           │
+│   powered by Three.js + AI Assistant                                        │
+│                                                                             │
+│   ┌──────────┐   ┌──────────────────────────────┐   ┌──────────────┐       │
+│   │          │   │                              │   │              │       │
+│   │ PERFILES │   │      ESCENARIO 3D            │   │  AI ASSISTANT│       │
+│   │          │   │                              │   │              │       │
+│   │ IPE 200  │   │   ┌──┐  ┌──┐  ┌──┐          │   │  🤖 Analysis │       │
+│   │ IPE 270  │   │   │  ├──┤  ├──┤  │          │   │  📊 Score    │       │
+│   │ IPE 330  │   │   │  │  │  │  │  │          │   │  💡 Tips     │       │
+│   │ HEA 240  │   │   └──┘  └──┘  └──┘          │   │  🏗️ Auto     │       │
+│   │ []650x45 │   │                              │   │              │       │
+│   │ HI 830   │   │   Click para colocar vigas   │   │              │       │
+│   │ UPN 160  │   │   con seccion real            │   │              │       │
+│   │          │   │                              │   │              │       │
+│   └──────────┘   └──────────────────────────────┘   └──────────────┘       │
+│                                                                             │
+│   Controles: Click = colocar | Arrastrar = rotar | Scroll = zoom           │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Caracteristicas del Steel Builder
+
+| Feature | Descripcion |
+|:--------|:------------|
+| **14 perfiles reales** | IPE, HEA, HSS, HI, TRD, UPN con seccion transversal verdadera (ExtrudeGeometry) |
+| **Snap a grilla** | Precision de 0.5m para colocacion exacta |
+| **Ghost preview** | Vista previa translucida antes de colocar |
+| **Modo Build/Delete** | Construir o eliminar elementos |
+| **AI Assistant** | Analisis estructural en tiempo real, score 0-100, tips contextuales |
+| **Auto-Build** | Genera marco de 3 niveles con animacion automatica |
+| **Stats en vivo** | Elementos, peso total, perfiles usados, niveles |
+
+### Navegacion
+
+```
+  Login ──> / (Steel Builder 3D)  ←──→  /dashboard (App principal)
+                  🎮                            🏗️
+```
+
+---
+
+## Taller — Botonera de Archivos por Elemento
+
+Cada tarjeta de elemento en el modulo Taller incluye una botonera para acceder a los archivos de Tekla Structures:
+
+```
+┌─────────────────────────────────────────┐
+│  b/40                        3 pz  ✏️🗑️ │
+│  IPE 330        600 cm                  │
+│  18.8 kg/un     56.4 kg                 │
+│  [═══════ TimelineBar ═══════]         │
+│  [ 📐DWG ] [ 🏗️IFC ] [ 📄PDF ]         │  ← Botonera de archivos
+└─────────────────────────────────────────┘
+```
+
+| Boton | Archivo | Ruta |
+|:-----:|:--------|:-----|
+| **DWG** | Plano del nivel | `/taller/dwg/CTIB_HCB_MET_2{num}_PLA_{nivel}.dwg` |
+| **IFC** | Modelo 3D (visor integrado) | `/taller/IFC_files/{parte}_Qty_{cant}.ifc` |
+| **PDF** | Dato del parte | `/taller/partes/b{num} - STANDARD.pdf` |
+
+### Visor IFC Integrado
+
+Al hacer click en **IFC**, se abre el visor 3D integrado (mismo que el modulo BIM):
+
+```
+┌─────────────────────────────────────────┐
+│  [X]  b/40 - IPE 330          🔄  🔍   │
+│ ┌─────────────────────────────────────┐ │
+│ │                                     │ │
+│ │         MODELO 3D IFC               │ │
+│ │      (rotar, zoom, click)           │ │
+│ │                                     │ │
+│ └─────────────────────────────────────┘ │
+│  Propiedades: Nombre, Material, Peso... │
+└─────────────────────────────────────────┘
+```
+
+### Archivos Disponibles
+
+| Tipo | Cantidad | Formato de nombre |
+|:-----|:---------|:------------------|
+| **IFC** | 1,972 | `{parte}_Qty_{cantidad}.ifc` o `b_{parte}_Qty_{cantidad}.ifc` |
+| **DWG** | 55 | `CTIB_HCB_MET_{code}_PLA_{nivel}.dwg` |
+| **PDF** | 183 | `b{num} - STANDARD.pdf` |
 
 ---
 

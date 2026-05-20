@@ -92,10 +92,29 @@
 - `server/index.js` - Express API (828 lines, all routes)
 - `prisma/schema.prisma` - Schema (7 models)
 - `src/lib/api.ts` - API client
-- `src/components/panels/TallerPanel.tsx` - Taller CRUD
+- `src/components/HomePage.tsx` - Steel Builder 3D (juego interactivo con AI)
+- `src/components/panels/TallerPanel.tsx` - Taller CRUD + botonera archivos
 - `src/components/panels/ConexionesPanel.tsx` - Conexiones (9 families, 81 combos)
 - `src/components/panels/InformesPanel.tsx` - Reports with tabs
 - `src/App.css` - Styles (print-optimized)
+
+## HomePage — Steel Builder 3D (2026-05-20)
+- Juego interactivo de construccion de estructuras metalicas con Three.js
+- 14 perfiles con secciones transversales reales (ExtrudeGeometry + Shape)
+- IPE/HEA/HI: seccion I, HSS: tubo rectangular hueco, TRD: tubo circular hueco, UPN: canal C
+- Click para colocar vigas con snap a grilla 0.5m
+- Modo Build y Delete con ghost preview
+- AI Assistant: analisis estructural, score, tips contextuales
+- Auto-Build: genera marco de 3 niveles con animacion
+- Navegacion: `/` = Steel Builder, `/dashboard` = App principal
+
+## Taller — Botonera de Archivos (2026-05-20)
+- Cada tarjeta de elemento tiene 3 botones: DWG, IFC, PDF
+- IFC: abre visor 3D integrado (IFCViewer) con rotacion/zoom/propiedades
+- DWG: abre en nueva pestana (`/taller/dwg/CTIB_HCB_MET_2{num}_PLA_{nivel}.dwg`)
+- PDF: abre en nueva pestana (`/taller/partes/b{num} - STANDARD.pdf`)
+- Archivos servidos desde `public/taller/` (1972 IFC, 55 DWG, 183 PDF)
+- Estilo glass con borde sutil, integrado con gradiente azul/morado
 
 ## Conexiones Module (2026-05-20)
 - **9 familias de perfiles:** IPE, HEA, HSS-RECT, HI, PHI, TUBO CUADRADO, TUBO REDONDO, UPN, PLACA BASE
