@@ -757,6 +757,8 @@ app.post('/api/conexiones/generate-all', async (req, res) => {
             numTornillos: conPlatina ? 3 : null,
             diametroTornillo: conPlatina ? 16 : null,
             largoTornillo: conPlatina ? 38 : null,
+            volumenCordon: conPlatina && dim.ancho && dim.largo ? Math.round((Math.round(2 * (dim.largo + 2 * dim.ancho) * 10) / 10) * 36 / 2 / 1000 * 100) / 100 : null,
+            pesoCordon: conPlatina && dim.ancho && dim.largo ? Math.round((Math.round(2 * (dim.largo + 2 * dim.ancho) * 10) / 10) * 36 / 2 / 1000 * 7.85 * 100) / 100 : null,
           })
         }
       }
