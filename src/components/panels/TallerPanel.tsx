@@ -633,13 +633,13 @@ return (
                         // DWG: por nivel del grupo
                         const nivel = grupoActual?.nombre || ''
                         const nivelNum = nivel.replace('N','').padStart(2,'0')
-                        // PDF: siempre con prefijo b (b1, b10, b100, etc.)
-                        const partePDF = `b${parteNum}`
+                        // PDF: puede ser b{num}, c{num}, o {num}
+                        const partePDF = el.parte.toLowerCase().startsWith('c') ? `c${parteNum}` : el.parte.toLowerCase().startsWith('b') ? `b${parteNum}` : parteNum
 
                         const archivos = [
                           { label: 'DWG', icon: '📐', url: `/taller/DWG_files/${tienePrefijoB ? 'b_' + parteNum : parteNum}_Qty_${el.cantidad}.dwg` },
                           { label: 'IFC', icon: '🏗️', url: `/taller/IFC_files/${ifcFile}`, isIFC: true },
-                          { label: 'PDF', icon: '📄', url: `/taller/partes/${partePDF} - STANDARD.pdf` },
+                          { label: 'PDF', icon: '📄', url: `/taller/PDF_files/${partePDF} - STANDARD.pdf` },
                         ]
 
                         return archivos.map(btn => (
