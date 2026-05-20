@@ -529,6 +529,9 @@ npm run start
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                                                             │
+│  Autor:         Ing. Civil Jorge Giovanni Correa Mejia      │
+│                 Especialista en Estructuras Metalicas       │
+│                                                             │
 │  Cliente:       Consorcio Camara                            │
 │  Ingeniero:     Hugo Bermudez Buitrago                      │
 │  Empresa:       Estructuras Metalicas HcB                   │
@@ -569,8 +572,11 @@ npm run start
   ╔═══════════════════════════════════════════════════════════════╗
   ║                                                               ║
   ║   CTIB — Sistema de Gestion BIM                              ║
-  ║   Estructuras Metalicas HcB · Bogota, Colombia               ║
   ║                                                               ║
+  ║   Autor: Ing. Civil Jorge Giovanni Correa Mejia              ║
+  ║   Especialista en Estructuras Metalicas                      ║
+  ║                                                               ║
+  ║   Estructuras Metalicas HcB · Bogota, Colombia               ║
   ║   v1.0 · 2025                                                ║
   ║                                                               ║
   ╚═══════════════════════════════════════════════════════════════╝
