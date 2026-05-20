@@ -165,7 +165,7 @@ Cada etapa tiene un panel dedicado con formulario especifico:
 
 ---
 
-## Perfiles Soportados — 9 Familias (64 perfiles)
+## Perfiles Soportados — 9 Familias (61 perfiles)
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
@@ -214,6 +214,11 @@ Cada etapa tiene un panel dedicado con formulario especifico:
 │  UPN (Canal U) — 2 perfiles                                          │
 │  ┌────────────────────────────────────────────────────────────────┐  │
 │  │ UPN 80 │ UPN 160                                                │  │
+│  └────────────────────────────────────────────────────────────────┘  │
+│                                                                      │
+│  Placa Base — 1 perfil (soldada a viga, anclada a concreto)         │
+│  ┌────────────────────────────────────────────────────────────────┐  │
+│  │ PLACA BASE                                                      │  │
 │  └────────────────────────────────────────────────────────────────┘  │
 │                                                                      │
 └──────────────────────────────────────────────────────────────────────┘
